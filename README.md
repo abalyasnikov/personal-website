@@ -30,6 +30,7 @@ diff.
 | `lib/posts.ts` | Markdown discovery, validation, and sorting |
 | `styles/tokens.css` | Runtime design tokens |
 | `scripts/audit/` | Contrast, layout, behaviour and screenshot regression checks |
+| `assets/` | Sources kept out of the published build, such as the original portrait PNG |
 | [`DESIGN.md`](DESIGN.md) | Current design system and decisions |
 | [`CLAUDE.md`](CLAUDE.md) | Current instructions and guardrails for coding agents |
 | [`SPEC.md`](SPEC.md) | Historical brief and decision context; not current implementation authority |

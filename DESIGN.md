@@ -63,7 +63,7 @@ The old editorial exploration remains unchanged in `demo/index.html`; its matchi
 ## Rules
 
 1. One centered column, `656px` wide. All major content shares its edges.
-2. Inter carries headings and prose. JetBrains Mono is restricted to navigation, terminal, metadata, and controls. Caveat is still loaded but no longer used anywhere; it was the `script` hero treatment, removed on 2026-07-31.
+2. Inter carries headings and prose. JetBrains Mono is restricted to navigation, terminal, metadata, and controls. Those are the only two faces the site loads.
 3. Hierarchy comes from spacing, weight, section rules, and numbering—not extra card surfaces.
 4. Every interactive hover and focus state uses `--accent`. Focus must remain visible.
 5. Investing uses the same stacked row primitive as building. No one-off grid or spacing model.
@@ -150,7 +150,7 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 | 2026-07-31 | Lock the identity accent to signal blue and delete the picker | The identity decision is made; a live picker on a job-search page is cost without benefit |
 | 2026-07-31 | Split the accent by theme: `#2B61FF` light, `#5B81F1` dark | No single tone at 225° clears 4.5:1 on both `#FAF9F6` and `#202020`; the terminal green already set this precedent |
 | 2026-07-31 | Move light `--muted` from `#737373` to `#6B6B6B` | `#737373` measured 4.35:1 on `--surface`, below AA for the terminal chrome and runner keys |
-| 2026-07-31 | Drop the Caveat hero treatment | The italic word was an exploration axis, not a decision; the role phrase reads as an accent on its own |
+| 2026-07-31 | Drop the Caveat hero treatment and unload the face | The italic word was an exploration axis, not a decision; the role phrase reads as an accent on its own, and nothing else used Caveat |
 | 2026-07-31 | Declare a six-step scale and delete 17/13/12px | Four sizes lived between 10 and 13px; a 1px difference is not a hierarchy, it is accumulation |
 | 2026-07-31 | Give standalone controls a 44px pseudo-element target | The pointer target grows without moving a single visible pixel |
 | 2026-07-31 | Keep navigation and writing rows underline-free | The block target and the accent arrow already mark them; underlines would add noise to a mono row |

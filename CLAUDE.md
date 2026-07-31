@@ -43,7 +43,8 @@ out of date. If it conflicts with this project or looks stale, ask Andrey.
 | `styles/tokens.css` | Runtime implementation of design tokens |
 | `app/globals.css` | Layout and component rules built from those tokens |
 | `next.config.ts` | Static-export configuration |
-| `public/` | Profile image and downloadable résumé |
+| `public/` | Everything the site serves: portrait, OG image, résumé |
+| `assets/` | Sources that must not be published, such as the original portrait PNG |
 | `demo/` | Archived pre-Next.js exploration; do not modify |
 
 ## Content rules
@@ -68,8 +69,6 @@ out of date. If it conflicts with this project or looks stale, ask Andrey.
   not-found wording. It needs Andrey's approval before launch.
 - The OG image `public/og.png` is a first pass built from the parameters in the
   audit spec. Its composition needs Andrey's sign-off.
-- Caveat is still installed and `--font-accent` still exists, but nothing uses
-  them since the hero treatment was removed. Removing both is a follow-up.
 
 ## Writing contract
 

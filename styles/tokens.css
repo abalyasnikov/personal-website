@@ -17,7 +17,6 @@
   /* Type roles. Six steps: 44 / 18 / 16 / 14 / 11 / 10. */
   --font-sans: "Inter Variable", sans-serif;
   --font-mono: "JetBrains Mono Variable", monospace;
-  --font-accent: "Caveat Variable", cursive;
   --text-tiny: 0.625rem;
   --text-small: 0.6875rem;
   --text-content: 0.875rem;

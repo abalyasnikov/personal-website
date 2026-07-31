@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/inter";
-import "@fontsource-variable/caveat";
 import "@fontsource-variable/jetbrains-mono";
 import "@/styles/tokens.css";
 import "./globals.css";
