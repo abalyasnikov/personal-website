@@ -31,5 +31,14 @@ export const SHOT_DIFF_TOLERANCE_PX = 0;
 /** Per-channel difference below which two pixels count as identical. */
 export const SHOT_CHANNEL_TOLERANCE = 0;
 
-/** Elements excluded from the hit-target check: inline links inside running prose. */
-export const HIT_TARGET_EXEMPT = [".markdown-content p a", ".markdown-content li a", ".markdown-content td a"];
+/**
+ * Excluded from the hit-target check: links that sit inside running text rather
+ * than standing alone as controls. Growing them to 44px would push an invisible
+ * zone over the copy around them.
+ */
+export const HIT_TARGET_EXEMPT = [
+  ".markdown-content p a",
+  ".markdown-content li a",
+  ".markdown-content td a",
+  ".plain-row h3 a",
+];

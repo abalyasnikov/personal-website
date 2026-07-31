@@ -120,7 +120,13 @@ export default function Home() {
         <div className="plain-list">
           {investing.map((item) => (
             <div className="plain-row" key={item.name}>
-              <h3>{item.name}</h3>
+              <h3>
+                {item.href ? (
+                  <a href={item.href} target="_blank" rel="noreferrer">{item.name}</a>
+                ) : (
+                  item.name
+                )}
+              </h3>
               <p>{item.description}</p>
             </div>
           ))}
@@ -128,7 +134,7 @@ export default function Home() {
       </Section>
 
       <Section number="06" id="contact" title="contact">
-        <p className="lede">Have a hard product problem?</p>
+        <p className="lede">Currently looking for product leadership or senior hands-on roles.</p>
         <a className="email-link" href="mailto:andrew.balyasnikov@gmail.com">andrew.balyasnikov@gmail.com ↗</a>
         <a className="resume-link" href="/andrey-balyasnikov-resume.pdf" download>download résumé ↓</a>
         <div className="contact-links">
