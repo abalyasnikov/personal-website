@@ -44,7 +44,7 @@ export default function Home() {
 
       <section className="reference-hero" aria-labelledby="page-title">
         <div className="identity">
-          <Image src="/profile.png" width={640} height={640} priority alt="Portrait of Andrey Balyasnikov" />
+          <Image src="/profile.webp" width={384} height={384} priority alt="Portrait of Andrey Balyasnikov" />
           <div>
             <h1 id="page-title">andrey</h1>
             <p><span className="accent-word">Product lead</span> building consumer products and developer platforms across fintech and crypto.</p>

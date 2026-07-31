@@ -19,9 +19,29 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 
   if (!post) return {};
 
+  const title = `${post.title} — Andrey Balyasnikov`;
+  const url = `/writing/${slug}`;
+  const image = { url: "/og.png", width: 1200, height: 630, alt: "Andrey Balyasnikov — product lead" };
+
   return {
-    title: `${post.title} — Andrey Balyasnikov`,
+    title,
     description: post.description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      title,
+      description: post.description,
+      url,
+      images: [image],
+      // Only emitted when the post actually carries a date in its frontmatter.
+      ...(post.date ? { publishedTime: post.date } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: post.description,
+      images: [image],
+    },
   };
 }
 

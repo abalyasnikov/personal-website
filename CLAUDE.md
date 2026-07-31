@@ -37,7 +37,6 @@ out of date. If it conflicts with this project or looks stale, ask Andrey.
 | `components/SiteChrome.tsx` | Theme and accent exploration controls |
 | `components/ArticleChrome.tsx` | Shared sticky chrome for article pages |
 | `components/MarkdownArticle.tsx` | Design-system renderer for Markdown elements |
-| `components/IndexList.tsx` | Currently unused earlier list primitive; do not extend unless it is wired back in |
 | `content/site.tsx` | Work, building, and investing content |
 | `content/writing/*.md` | Blog post source files |
 | `lib/posts.ts` | Post discovery, frontmatter validation, ordering, and labels |

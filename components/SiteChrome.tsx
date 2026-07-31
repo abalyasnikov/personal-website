@@ -26,18 +26,17 @@ export function SiteChrome() {
   const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem("site-theme");
     const storedAccentValue = localStorage.getItem("accent");
     const storedAccent = storedAccentValue === null ? Number.NaN : Number(storedAccentValue);
     const storedTreatment = localStorage.getItem("accent-treatment") as Treatment | null;
-    const initialTheme = storedTheme === "dark" ? "dark" : "light";
+    // The inline head script already resolved the theme before the first paint.
+    const initialTheme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
     const initialAccent = Number.isInteger(storedAccent) && storedAccent >= 0 && storedAccent < accents.length ? storedAccent : defaultAccent;
     const initialTreatment = storedTreatment && treatments.includes(storedTreatment) ? storedTreatment : "script";
 
     setTheme(initialTheme);
     setAccent(initialAccent);
     setTreatment(initialTreatment);
-    applyTheme(initialTheme);
     document.documentElement.style.setProperty("--accent", accents[initialAccent].value);
     document.documentElement.dataset.accentStyle = initialTreatment;
   }, []);
