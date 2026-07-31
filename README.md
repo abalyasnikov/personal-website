@@ -1,6 +1,22 @@
 # balyasnikov.com
 
-Next.js implementation of Andrey Balyasnikov's personal site. The current direction is intentionally close to [martin-slaney.com](https://martin-slaney.com/) so it can serve as a clean baseline for later iterations.
+Personal site of Andrey Balyasnikov. Statically exported Next.js, deployed on
+Vercel.
+
+**Live:** [balyasnikov.com](https://balyasnikov.com)
+
+## Stack
+
+| | |
+|---|---|
+| Framework | Next.js 15, App Router, `output: "export"` |
+| Language | TypeScript, React 19 |
+| Styling | Plain CSS with design tokens, no framework |
+| Content | Markdown with frontmatter |
+| Fonts | Inter and JetBrains Mono, self-hosted |
+
+No CSS framework, no component library, no client-side state beyond a theme
+toggle. The whole site ships as static HTML.
 
 ## Run
 
@@ -9,39 +25,37 @@ npm install
 npm run dev -- -p 3001
 ```
 
-Open `http://localhost:3001`. Run `npm run build` for the production static-export check.
+Open `http://localhost:3001`.
 
-`npm run lint` runs the ESLint CLI against `eslint.config.mjs`. `npm run audit`
-runs the accessibility and layout regression suite in `scripts/audit/` against an
-already-running server; it never starts one. Point it elsewhere with `AUDIT_URL`,
-and set `AUDIT_BASELINE` to a directory of reference screenshots to get a pixel
-diff.
+```bash
+npm run build     # static export to out/
+npm run lint      # ESLint
+npm run audit     # accessibility and layout regression suite
+```
+
+`npm run audit` expects a dev server already running. It checks colour contrast
+in both themes, touch-target sizing against WCAG 2.2 AA, horizontal overflow at
+four viewport widths, theme-flash on first paint, and keyboard focus order. Set
+`AUDIT_URL` to point it elsewhere.
 
 ## Structure
 
-| Path | Purpose |
+| Path | Responsibility |
 |---|---|
-| `app/` | Page, metadata, and global styles |
-| `components/SiteChrome.tsx` | Theme control |
-| `components/ArticleChrome.tsx` | Sticky navigation shared by article pages |
-| `components/MarkdownArticle.tsx` | Shared design-system renderer for post content |
-| `content/site.tsx` | Structured site content |
-| `content/writing/*.md` | Blog posts and their metadata |
-| `lib/posts.ts` | Markdown discovery, validation, and sorting |
-| `styles/tokens.css` | Runtime design tokens |
-| `scripts/audit/` | Contrast, layout, behaviour and screenshot regression checks |
-| `assets/` | Sources kept out of the published build, such as the original portrait PNG |
-| [`DESIGN.md`](DESIGN.md) | Current design system and decisions |
-| [`CLAUDE.md`](CLAUDE.md) | Current instructions and guardrails for coding agents |
-| [`SPEC.md`](SPEC.md) | Historical brief and decision context; not current implementation authority |
-| `demo/index.html` | Preserved previous standalone version |
-| [`demo/DESIGN.md`](demo/DESIGN.md) | Design system that belonged to the previous version |
+| `app/` | Routes, layout, global styles |
+| `app/writing/[slug]/` | Static post route |
+| `components/` | Article chrome, Markdown renderer, theme control |
+| `content/site.tsx` | Work, building and investing entries |
+| `content/writing/*.md` | Posts |
+| `lib/posts.ts` | Post discovery, frontmatter validation, ordering |
+| `styles/tokens.css` | Design tokens |
+| `scripts/audit/` | Regression suite |
+| `docs/` | Design system and specs |
+| `assets/` | Sources that are not published |
 
-The theme follows the operating system on a first visit; the header control overrides it and the choice persists in `localStorage`.
+## Writing a post
 
-## Write a post
-
-Add a Markdown file to `content/writing/`. Its filename becomes the URL slug.
+Add a Markdown file to `content/writing/`. The filename becomes the URL slug.
 
 ```md
 ---
@@ -59,10 +73,36 @@ Post copy goes here.
 > A blockquote becomes a highlighted takeaway.
 ```
 
-Use `draft` or `published` for `status`. Published posts with a date show the month and year; drafts show `Draft`. Status is a visible label, not a privacy control: every file in this directory is listed and receives a static route. Keep private drafts elsewhere.
+`status` is `draft` or `published` and is a visible editorial label, not access
+control: every file in the directory is listed and gets a public route. Keep
+private drafts elsewhere.
 
-Optional `order` puts explicitly ordered posts first. Equal or missing values fall back to newest date and then slug. The page title comes from frontmatter, so the Markdown body starts at `##`; level-two headings are numbered automatically.
+`order` puts explicitly ordered posts first; equal or missing values fall back to
+newest date, then slug, so builds stay deterministic. The page renders the `<h1>`
+from `title`, so bodies start at `##`. Level-two headings are numbered
+automatically.
 
-The shared renderer supports level-two and level-three headings, paragraphs, lists, links, images, blockquotes, horizontal rules, inline code, fenced code blocks, and GFM tables.
+Posts are plain Markdown, not MDX. Raw HTML, JSX and per-post styling are not
+part of the authoring format, so no article can drift out of the design system.
+Extend the shared renderer instead.
 
-Posts intentionally use plain Markdown rather than MDX. Raw HTML, JSX, and per-post presentation are not part of the authoring format; the shared renderer keeps every article inside the design system.
+## Design system
+
+[`docs/DESIGN.md`](docs/DESIGN.md) owns tokens, layout rules, interaction states
+and the decision log. A new colour, type size, spacing value, radius or motion
+rule is a system change: update that file and `styles/tokens.css` together.
+
+[`CODING_STANDARDS.md`](CODING_STANDARDS.md) covers the rest: error handling,
+typing, naming, and what has to pass before a commit.
+
+Specs for larger pieces of work live in [`docs/specs/`](docs/specs). The most
+recent one is the
+[July 2026 accessibility and layout audit](docs/specs/2026-07-31-accessibility-and-layout-audit.md),
+which is where the contrast, theme and type-scale decisions come from.
+
+## Licence
+
+Source code is MIT, see [LICENSE](LICENSE).
+
+Site content is not covered by it: the writing, the portrait, the résumé and the
+biographical copy are © Andrey Balyasnikov, all rights reserved.
