@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Tracked files only. Commit messages are checked by hand with
+      # `node scripts/check-english.mjs --commits`, because history is
+      # immutable and a failing gate on it could never be satisfied.
+      - name: Check the English-only rule
+        run: npm run check:english
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      # The audit suite drives a real browser and expects a server it did not
+      # start, so CI serves the static export it just built.
+      - name: Install Chromium for the audit suite
+        run: npx playwright install --with-deps chromium
+
+      - name: Serve the static export
+        run: |
+          npx --yes serve@14 out --listen 4173 --no-clipboard &
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null http://localhost:4173/; then
+              echo "server is up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "static server never came up on 4173"
+          exit 1
+
+      - name: Audit
+        run: npm run audit
+        env:
+          AUDIT_URL: http://localhost:4173

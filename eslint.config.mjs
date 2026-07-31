@@ -1,16 +1,15 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import next from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
 // `next lint` is deprecated in Next 15.5 and removed in 16, so the project runs
-// the ESLint CLI against a flat config instead.
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
-
+// the ESLint CLI. eslint-config-next ships flat config natively, so the
+// eslintrc compatibility layer is gone.
 const config = [
   {
-    ignores: [".next/**", "out/**", "node_modules/**", "demo/**", "next-env.d.ts"],
+    ignores: [".next/**", "out/**", "node_modules/**", ".audit/**", "next-env.d.ts"],
   },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...next,
+  ...nextTypescript,
   {
     rules: {
       "@typescript-eslint/no-unused-vars": [

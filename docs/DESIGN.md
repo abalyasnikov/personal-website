@@ -1,6 +1,6 @@
 ---
-name: balyasnikov.com-reference-baseline
-description: A close, tokenized baseline of martin-slaney.com for controlled iteration.
+name: balyasnikov.com-design-system
+description: The tokenized visual system for balyasnikov.com.
 colors:
   accent-light: "#2B61FF"
   accent-dark: "#5B81F1"
@@ -56,9 +56,9 @@ motion:
 
 ## Intent
 
-This iteration uses [martin-slaney.com](https://martin-slaney.com/) as a baseline: a narrow column, circular portrait, mono navigation, terminal fragment, numbered sections, and quiet rules. Navigation is adapted into a compact sticky header so section access remains available while scrolling.
+The site is one narrow centred column: a circular portrait, monospace navigation, a terminal fragment, numbered sections and quiet rules. Navigation sits in a compact sticky header so section access stays available while scrolling.
 
-The old editorial exploration remains unchanged in `demo/index.html`; its matching system is archived at `demo/DESIGN.md`.
+The system is deliberately small. One column, two faces, six type steps, one accent. Hierarchy comes from spacing and weight rather than from new surfaces, and every addition has to earn a token.
 
 ## Rules
 
@@ -100,7 +100,7 @@ Six steps, each one distinguishable: **44 / 18 / 16 / 14 / 11 / 10**. Every one 
 
 The title is a clamp, not a step, so it scales with the viewport. `--text-title-compact` (30px) is part of the same axis: the hero name keeps a smaller size below 672px so it stays on one line.
 
-Site body remains 16px and compact section copy is 14px, matching the reference. The home page is compact copy; article pages use site body. That is the only place two content sizes coexist, and it is intentional.
+Site body is 16px and compact section copy is 14px. The home page is compact copy; article pages use site body. That is the only place two content sizes coexist, and it is intentional.
 
 ## Layout rhythm
 
@@ -137,7 +137,7 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 
 | Date | Decision | Reason |
 |---|---|---|
-| 2026-07-30 | Use reference parity as the baseline | The previous original direction obscured the useful comparison point |
+| 2026-07-30 | Rebuild on one narrow column with numbered sections | The earlier editorial direction spread attention across surfaces that carried no information |
 | 2026-07-30 | Keep accent color and treatment as live axes | These are the two identity decisions still worth testing |
 | 2026-07-30 | Preserve the previous demo separately | Baseline work must not destroy the earlier exploration |
 | 2026-07-30 | Move section navigation into a sticky horizontal header | Keep orientation available without a large standalone navigation block |

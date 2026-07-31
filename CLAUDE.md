@@ -1,31 +1,21 @@
 # balyasnikov.com — agent instructions
 
-Andrey Balyasnikov's personal site. The active implementation is a statically
-exported Next.js 15 app. It uses martin-slaney.com as a structural baseline,
-then applies the project's own content, tokens, interaction rules, and writing
-system.
-
-The earlier standalone exploration is preserved under `demo/`. It is reference
-material only; do not edit it while working on the active site.
+Andrey Balyasnikov's personal site: a statically exported Next.js 15 app. The
+design is a single narrow column with a circular portrait, monospace navigation,
+numbered sections and quiet rules, built on the project's own tokens,
+interaction rules and writing system.
 
 ## Sources of truth
 
 Use these in order:
 
-1. **`DESIGN.md`** owns the current visual system and settled interaction rules.
-   `styles/tokens.css` must implement its tokens exactly.
+1. **`docs/DESIGN.md`** owns the current visual system and settled interaction
+   rules. `styles/tokens.css` must implement its tokens exactly.
 2. **The active content files** own what appears on the site:
    `content/site.tsx`, `content/writing/*.md`, and the remaining page copy in
    `app/page.tsx`.
 3. **`README.md`** owns setup, project structure, and the post-authoring workflow.
-4. **`SPEC.md`** is the historical product and design brief. It preserves the
-   reasoning that started the project, but many implementation details and open
-   questions in it have been superseded. Never use it to overwrite current code,
-   `DESIGN.md`, or user-confirmed content.
-
-The CV project one directory over is background context, not authority. Start at
-`../cv/CLAUDE.md` when career context is useful, but treat its content as possibly
-out of date. If it conflicts with this project or looks stale, ask Andrey.
+4. **`CODING_STANDARDS.md`** owns the conventions this repository is held to.
 
 ## Project map
 
@@ -43,9 +33,10 @@ out of date. If it conflicts with this project or looks stale, ask Andrey.
 | `styles/tokens.css` | Runtime implementation of design tokens |
 | `app/globals.css` | Layout and component rules built from those tokens |
 | `next.config.ts` | Static-export configuration |
+| `scripts/audit/` | Contrast, layout, behaviour and screenshot regression checks |
+| `scripts/check-english.mjs` | Enforces the English-only rule across tracked files |
 | `public/` | Everything the site serves: portrait, OG image, résumé |
 | `assets/` | Sources that must not be published, such as the original portrait PNG |
-| `demo/` | Archived pre-Next.js exploration; do not modify |
 
 ## Content rules
 
@@ -54,8 +45,7 @@ out of date. If it conflicts with this project or looks stale, ask Andrey.
 - Keep the site's English direct and falsifiable. Avoid résumé language such as
   “spearheaded,” “leveraged,” “passionate about,” “proven track record,”
   “results-driven,” “at the intersection of,” and “not just X, but Y.”
-- Do not reintroduce claims already removed for positioning reasons. The target
-  is hands-on Product Lead / Principal PM work, not a people-manager profile.
+- Do not reintroduce claims already removed for positioning reasons.
 - Preserve confirmed wording and ordering unless the user explicitly asks to
   revisit it.
 
@@ -65,10 +55,10 @@ out of date. If it conflicts with this project or looks stale, ask Andrey.
   placeholder. Do not replace it until Andrey supplies the factual sentence.
 - The three current writing files are public previews labelled `Draft`; none is
   published yet.
-- `public/og.png` is generated, not hand-edited. Its copy is a separate approved
-  line from the hero, and the description wraps to three lines at the agreed
-  34px. Fitting two lines needs a 673px text column or a 32px size — both are
-  open questions, not defects.
+- `public/og.png` is generated, not hand-edited. Its description is a separate
+  approved line from the hero and is set at 32px, where it fits two lines with
+  7px to spare in the 640px column. Editing that line means re-measuring the
+  wrap.
 
 ## Writing contract
 
@@ -101,23 +91,23 @@ Post copy.
 - The shared renderer also supports `###`, lists, links, images, tables,
   horizontal rules, inline code, and fenced code blocks.
 - Keep posts as plain Markdown. No raw HTML, JSX, inline presentation, or
-  one-off per-post styling. Extend `MarkdownArticle` and `DESIGN.md` when a new
+  one-off per-post styling. Extend `MarkdownArticle` and `docs/DESIGN.md` when a new
   semantic element is genuinely needed.
 
 ## Design rules
 
-- Read `DESIGN.md` before changing layout, type, color, spacing, motion, links,
+- Read `docs/DESIGN.md` before changing layout, type, color, spacing, motion, links,
   or interaction states.
 - Use semantic variables such as `--canvas`, `--ink`, `--muted`, `--rule`, and
   `--accent`; do not place raw palette values in components.
 - A new color, type size, spacing value, radius, or motion rule is a design-system
-  change. Update `DESIGN.md` and `styles/tokens.css` together.
+  change. Update `docs/DESIGN.md` and `styles/tokens.css` together.
 - The theme follows the operating system on a first visit and is resolved by the
   inline script in `app/layout.tsx` before the first frame. A manual choice wins
   and persists. Dark mode must stay composed, not a mechanical inversion.
 - Signal blue is the locked identity accent and carries two values, `#2b61ff` in
   light and `#5b81f1` in dark. There is no accent picker; do not reintroduce one.
-- Type sizes come from the six-step scale in `DESIGN.md`. Do not add a size, and
+- Type sizes come from the six-step scale in `docs/DESIGN.md`. Do not add a size, and
   do not write a literal `font-size` in `app/globals.css`.
 - Text links inherit their surrounding hierarchy at rest, switch to `--accent`
   on hover, and use the accent focus ring for keyboard navigation. Do not make email or résumé links permanently

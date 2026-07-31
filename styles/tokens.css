@@ -5,7 +5,7 @@
      225° clears 4.5:1 on both #faf9f6 and #202020. */
   --accent: #2b61ff;
 
-  /* Light baseline, measured against martin-slaney.com. */
+  /* Light theme. Warm off-white canvas, near-black ink. */
   --canvas: #faf9f6;
   --surface: #f7f5f1;
   --ink: #171717;
