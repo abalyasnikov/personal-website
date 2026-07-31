@@ -43,8 +43,9 @@ four viewport widths, theme-flash on first paint, and keyboard focus order. Set
 | Path | Responsibility |
 |---|---|
 | `app/` | Routes, layout, global styles |
+| `app/writing/page.tsx` | Complete writing index |
 | `app/writing/[slug]/` | Static post route |
-| `components/` | Article chrome, Markdown renderer, theme control |
+| `components/` | Writing list, article chrome, Markdown renderer, theme control |
 | `content/site.tsx` | Work, building and investing entries |
 | `content/writing/*.md` | Posts |
 | `lib/posts.ts` | Post discovery, frontmatter validation, ordering |
@@ -73,9 +74,13 @@ Post copy goes here.
 > A blockquote becomes a highlighted takeaway.
 ```
 
-`status` is `draft` or `published` and is a visible editorial label, not access
-control: every file in the directory is listed and gets a public route. Keep
-private drafts elsewhere.
+`status` is `draft` or `published`. It is technical metadata, not a visible label
+or access control: every file in the directory is listed and gets a public route.
+Keep private drafts elsewhere.
+
+When `date` is present, it appears on the home-page preview, the complete writing
+index, and the article page. The home page shows three posts and links to the full
+index at `/writing`.
 
 `order` puts explicitly ordered posts first; equal or missing values fall back to
 newest date, then slug, so builds stay deterministic. The page renders the `<h1>`

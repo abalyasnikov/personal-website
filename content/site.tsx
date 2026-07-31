@@ -10,7 +10,6 @@ export type IndexEntry = {
   description: string;
   meta?: string;
   href?: string;
-  placeholder?: boolean;
 };
 
 export const work: WorkEntry[] = [
@@ -55,8 +54,7 @@ export const building: IndexEntry[] = [
   {
     name: "Personal AI assistant",
     meta: "OpenClaw → Hermes",
-    description: "One sentence about what it does is still needed.",
-    placeholder: true,
+    description: "A proactive AI second brain that captures links, meetings, notes and messages into structured memory, then uses that context to run useful skills like Telegram digests, portfolio sync, reminders, reviews and contextual search.",
   },
 ];
 

@@ -6,6 +6,7 @@ export const AUDIT_OUT = process.env.AUDIT_OUT || "";
 
 /** Viewport widths every visual check runs at. */
 export const WIDTHS = [320, 375, 768, 1440];
+export const DESKTOP_WIDTH = 1440;
 /** Viewport height used while measuring; full-page shots ignore it. */
 export const VIEWPORT_HEIGHT = 900;
 /** Both themes are first-class; neither is allowed to fail a check. */

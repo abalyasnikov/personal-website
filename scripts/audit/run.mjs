@@ -3,13 +3,21 @@
 // running; never starts one. Exits 0 when every check passes, 1 otherwise.
 import { chromium } from "playwright";
 import { AUDIT_URL, TARGET_MIN_AA, TARGET_MIN_AAA, THEMES, WIDTHS } from "./constants.mjs";
-import { discoverRoutes, requireServer } from "./lib.mjs";
+import { requireServer } from "./lib.mjs";
+import { discoverRoutes } from "./routes.mjs";
 import { run as contrast } from "./contrast.mjs";
 import { run as measure } from "./measure.mjs";
 import { run as behavior } from "./behavior.mjs";
 import { run as shots } from "./shots.mjs";
 
 const only = process.argv.slice(2).filter((arg) => !arg.startsWith("-"));
+const checkNames = ["contrast", "measure", "behavior", "shots"];
+const unknownChecks = only.filter((name) => !checkNames.includes(name));
+
+if (unknownChecks.length) {
+  console.error(`Unknown audit check(s): ${unknownChecks.join(", ")}. Expected one of: ${checkNames.join(", ")}.`);
+  process.exit(1);
+}
 
 try {
   await requireServer();
@@ -29,7 +37,7 @@ try {
   const checks = [
     ["contrast", () => contrast(browser, routes)],
     ["measure", () => measure(browser, routes)],
-    ["behavior", () => behavior(browser)],
+    ["behavior", () => behavior(browser, routes)],
     ["shots", () => shots(browser, routes)],
   ];
 

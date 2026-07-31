@@ -4,7 +4,7 @@ import matter from "gray-matter";
 
 const postsDirectory = path.join(process.cwd(), "content", "writing");
 
-export type PostStatus = "Draft" | "Published";
+export type PostStatus = "draft" | "published";
 
 export type PostSummary = {
   slug: string;
@@ -19,6 +19,44 @@ export type Post = PostSummary & {
   content: string;
 };
 
+function describeValue(value: unknown): string {
+  return JSON.stringify(value) ?? String(value);
+}
+
+function readRawDate(source: string): string | undefined {
+  const frontmatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)?.[1];
+  if (frontmatter === undefined) return undefined;
+  const match = frontmatter.match(/^date:\s*(.*?)\s*$/m);
+  if (!match) return undefined;
+  const rawValue = match[1];
+  if (rawValue === undefined) return undefined;
+  const value = rawValue.trim();
+  const isQuoted = value.length >= 2 && (
+    (value.startsWith("\"") && value.endsWith("\"")) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  );
+  return isQuoted ? value.slice(1, -1) : value;
+}
+
+function normalizePostDate(rawValue: string | undefined, parsedValue: unknown, location: string): string | undefined {
+  if (rawValue === undefined && parsedValue === undefined) return undefined;
+
+  if (rawValue && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+    const parsed = new Date(`${rawValue}T00:00:00Z`);
+    if (!Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === rawValue) {
+      return rawValue;
+    }
+  }
+
+  throw new Error(`${location} expected date as a real YYYY-MM-DD value, received ${describeValue(rawValue ?? parsedValue)}`);
+}
+
+function normalizePostOrder(value: unknown, filePath: string): number | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  throw new Error(`${filePath} expected order as a finite number, received ${describeValue(value)}`);
+}
+
 function readPostFile(slug: string): Post {
   const filePath = path.join(postsDirectory, `${slug}.md`);
   const source = fs.readFileSync(filePath, "utf8");
@@ -30,18 +68,18 @@ function readPostFile(slug: string): Post {
 
   const normalizedStatus = String(data.status ?? "draft").toLowerCase();
   if (normalizedStatus !== "draft" && normalizedStatus !== "published") {
-    throw new Error(`${filePath} has an invalid status: ${String(data.status)}`);
+    throw new Error(
+      `${filePath} expected status as draft or published, received ${describeValue(data.status)}`,
+    );
   }
 
   return {
     slug,
     title: data.title,
     description: data.description,
-    status: normalizedStatus === "published" ? "Published" : "Draft",
-    date: data.date instanceof Date
-      ? data.date.toISOString().slice(0, 10)
-      : typeof data.date === "string" ? data.date : undefined,
-    order: typeof data.order === "number" ? data.order : undefined,
+    status: normalizedStatus,
+    date: normalizePostDate(readRawDate(source), data.date, filePath),
+    order: normalizePostOrder(data.order, filePath),
     content,
   };
 }
@@ -69,12 +107,15 @@ export function getPost(slug: string): Post | undefined {
   return fs.existsSync(filePath) ? readPostFile(slug) : undefined;
 }
 
-export function getPostLabel(post: PostSummary): string {
-  if (post.status === "Draft" || !post.date) return post.status;
-
-  return new Intl.DateTimeFormat("en", {
+export function formatPostDate(date: string): string {
+  const normalizedDate = normalizePostDate(date, date, "formatPostDate input");
+  if (!normalizedDate) {
+    throw new Error("formatPostDate input expected date as YYYY-MM-DD, received undefined");
+  }
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
     month: "short",
     year: "numeric",
     timeZone: "UTC",
-  }).format(new Date(`${post.date}T00:00:00Z`));
+  }).format(new Date(`${normalizedDate}T00:00:00Z`));
 }

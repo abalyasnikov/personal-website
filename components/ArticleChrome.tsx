@@ -1,12 +1,18 @@
 import Link from "next/link";
 import { SiteChrome } from "@/components/SiteChrome";
 
-export function ArticleChrome({ path }: { path: string }) {
+type ArticleChromeProps = {
+  path?: string;
+  backHref?: string;
+  backLabel?: string;
+};
+
+export function ArticleChrome({ path, backHref = "/writing", backLabel = "all writings" }: ArticleChromeProps) {
   return (
     <header className="topline article-topline">
-      <nav className="article-nav" aria-label="Article navigation">
-        <Link href="/#writing">← home</Link>
-        <span>writing / {path}</span>
+      <nav className="article-nav" aria-label="Writing navigation">
+        <Link href={backHref}>← {backLabel}</Link>
+        <span>{path ? `writing / ${path}` : "writing"}</span>
       </nav>
       <SiteChrome />
     </header>

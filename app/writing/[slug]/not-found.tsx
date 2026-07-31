@@ -8,7 +8,7 @@ export default function PostNotFound() {
       <section className="post-empty" aria-labelledby="not-found-title">
         <p>404</p>
         <h1 id="not-found-title">This post does not exist.</h1>
-        <Link href="/#writing">← back to writing</Link>
+        <Link href="/writing">← all writings</Link>
       </section>
     </main>
   );

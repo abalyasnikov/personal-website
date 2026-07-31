@@ -1,13 +1,23 @@
 // Runtime behaviour: theme resolution before paint, system preference, keyboard focus.
-import { AUDIT_URL, VIEWPORT_HEIGHT } from "./constants.mjs";
-import { openPage } from "./lib.mjs";
+import { AUDIT_URL, DESKTOP_WIDTH, VIEWPORT_HEIGHT } from "./constants.mjs";
+import { navigatePage, openPage } from "./lib.mjs";
 
-// Installed before any page script. `document.documentElement` does not exist
-// yet at that point, so the observer watches the document subtree instead.
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]",
+].join(",");
+
+// Installed before any page script. The root element does not exist yet, so
+// the observer watches the document subtree and exposes setup failures.
 const OBSERVER = `
   window.__themeMutations = [];
   window.__firstPaint = null;
   window.__observerInstalled = false;
+  window.__themeObserverError = null;
   requestAnimationFrame(function () { window.__firstPaint = performance.now(); });
   try {
     new MutationObserver(function (records) {
@@ -21,136 +31,187 @@ const OBSERVER = `
       }
     }).observe(document, { attributes: true, attributeOldValue: true, attributeFilter: ['data-theme'], subtree: true });
     window.__observerInstalled = true;
-  } catch (e) {}
+  } catch (error) {
+    window.__themeObserverError = String(error);
+  }
 `;
 
 async function themedContext(browser, { colorScheme, storedTheme }) {
   const context = await browser.newContext({
-    viewport: { width: 1440, height: VIEWPORT_HEIGHT },
+    viewport: { width: DESKTOP_WIDTH, height: VIEWPORT_HEIGHT },
     colorScheme,
   });
-  await context.addInitScript(
-    storedTheme
-      ? `try { localStorage.setItem('site-theme', ${JSON.stringify(storedTheme)}); } catch (e) {}\n${OBSERVER}`
-      : `try { localStorage.removeItem('site-theme'); } catch (e) {}\n${OBSERVER}`,
-  );
-  const page = await context.newPage();
-  return { context, page };
+  const storageSetup = storedTheme
+    ? `localStorage.setItem('site-theme', ${JSON.stringify(storedTheme)});`
+    : "localStorage.removeItem('site-theme');";
+  await context.addInitScript(`${storageSetup}\n${OBSERVER}`);
+  return { context, page: await context.newPage() };
 }
 
-export async function run(browser) {
+async function checkThemeScript() {
   const failures = [];
   const lines = [];
-
-  // 1. The theme script must be inline, synchronous and inside <head>, so the
-  //    parser runs it before the first frame. Its position relative to the
-  //    stylesheet is reported but not enforced: the App Router hoists
-  //    `<link rel="stylesheet" data-precedence>` above every non-hoisted head
-  //    child, and a render-blocking stylesheet cannot paint before the parser
-  //    has executed a later synchronous script anyway. Check 2 is the proof.
   const html = await (await fetch(`${AUDIT_URL}/`)).text();
   const head = html.slice(0, html.search(/<\/head>/i));
-  const scriptMatch = [...head.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find((match) =>
-    match[1].includes("site-theme"),
-  );
-  const linkIndex = head.search(/<link[^>]+rel=["']?stylesheet/i);
+  const script = [...head.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
+    .find((match) => match[1].includes("site-theme"));
+  const stylesheetOffset = head.search(/<link[^>]+rel=["']?stylesheet/i);
 
-  if (!scriptMatch) {
-    failures.push("theme script: no inline script referencing site-theme found in <head>");
-  } else {
-    const openTag = scriptMatch[0].slice(0, scriptMatch[0].indexOf(">") + 1);
-    if (/\b(defer|async)\b/i.test(openTag)) {
-      failures.push(`theme script: must be synchronous, found ${openTag}`);
-    }
-    if (/\bsrc=/i.test(openTag)) {
-      failures.push(`theme script: must be inline, found ${openTag}`);
-    }
-    lines.push(`theme script inline+synchronous in <head> at offset ${scriptMatch.index} (first stylesheet at ${linkIndex})`);
-  }
+  if (!script) return { failures: ["theme script: no inline site-theme script found in <head>"], lines };
+  const tag = script[0].slice(0, script[0].indexOf(">") + 1);
+  if (/\b(defer|async)\b/i.test(tag)) failures.push(`theme script: must be synchronous, found ${tag}`);
+  if (/\bsrc=/i.test(tag)) failures.push(`theme script: must be inline, found ${tag}`);
+  lines.push(`theme script inline+synchronous in <head> at offset ${script.index} (first stylesheet at ${stylesheetOffset})`);
+  return { failures, lines };
+}
 
-  // 2. Stored dark must be applied before the first frame, with no later flip.
-  {
-    const { context, page } = await themedContext(browser, { colorScheme: "light", storedTheme: "dark" });
-    await page.goto(`${AUDIT_URL}/`, { waitUntil: "networkidle" });
-    const state = await page.evaluate(() => ({
-      theme: document.documentElement.dataset.theme,
-      background: getComputedStyle(document.body).backgroundColor,
-      firstPaint: window.__firstPaint,
-      installed: window.__observerInstalled,
-      mutations: window.__themeMutations,
-    }));
-    await context.close();
+async function checkStoredTheme(browser) {
+  const { context, page } = await themedContext(browser, { colorScheme: "light", storedTheme: "dark" });
+  await navigatePage(page);
+  const state = await page.evaluate(() => ({
+    theme: document.documentElement.dataset.theme,
+    background: getComputedStyle(document.body).backgroundColor,
+    firstPaint: window.__firstPaint,
+    installed: window.__observerInstalled,
+    observerError: window.__themeObserverError,
+    mutations: window.__themeMutations,
+  }));
+  await context.close();
 
-    if (!state.installed) failures.push("stored dark: the pre-navigation MutationObserver failed to install");
-    if (state.theme !== "dark") failures.push(`stored dark: resolved to ${state.theme}`);
-    const late = state.mutations.filter((m) => state.firstPaint !== null && m.at > state.firstPaint);
-    if (late.length) {
-      failures.push(`stored dark: ${late.length} data-theme change(s) after first paint — ${JSON.stringify(late)}`);
-    } else {
-      lines.push(`stored dark: ${state.mutations.length} pre-paint data-theme write(s), background ${state.background}`);
-    }
-  }
+  const failures = [];
+  if (!state.installed) failures.push(`stored dark: observer setup failed (${state.observerError ?? "unknown error"})`);
+  if (state.theme !== "dark") failures.push(`stored dark: expected dark, received ${state.theme}`);
+  const late = state.mutations.filter((item) => state.firstPaint !== null && item.at > state.firstPaint);
+  if (late.length) failures.push(`stored dark: ${late.length} data-theme change(s) after first paint — ${JSON.stringify(late)}`);
+  const lines = late.length ? [] : [`stored dark: ${state.mutations.length} pre-paint data-theme write(s), background ${state.background}`];
+  return { failures, lines };
+}
 
-  // 3. System preference on a first visit, and manual override winning over it.
+async function checkThemeCases(browser) {
   const cases = [
     { colorScheme: "dark", storedTheme: null, expected: "dark", note: "system dark, empty storage" },
     { colorScheme: "light", storedTheme: null, expected: "light", note: "system light, empty storage" },
     { colorScheme: "dark", storedTheme: "light", expected: "light", note: "manual light over system dark" },
     { colorScheme: "light", storedTheme: "dark", expected: "dark", note: "manual dark over system light" },
   ];
+  const failures = [];
+  const lines = [];
   for (const item of cases) {
     const { context, page } = await themedContext(browser, item);
-    await page.goto(`${AUDIT_URL}/`, { waitUntil: "networkidle" });
+    await navigatePage(page);
     const theme = await page.evaluate(() => document.documentElement.dataset.theme);
     await context.close();
-    if (theme !== item.expected) failures.push(`${item.note}: expected ${item.expected}, got ${theme}`);
-    else lines.push(`${item.note}: ${theme}`);
+    if (theme === item.expected) lines.push(`${item.note}: ${theme}`);
+    else failures.push(`${item.note}: expected ${item.expected}, received ${theme}`);
   }
+  return { failures, lines };
+}
 
-  // 4. A click on the theme control must survive a reload.
-  {
-    const context = await browser.newContext({ viewport: { width: 1440, height: VIEWPORT_HEIGHT }, colorScheme: "light" });
-    const page = await context.newPage();
-    await page.goto(`${AUDIT_URL}/`, { waitUntil: "networkidle" });
-    const before = await page.evaluate(() => document.documentElement.dataset.theme);
-    await page.click(".theme-toggle");
-    const toggled = await page.evaluate(() => document.documentElement.dataset.theme);
-    await page.reload({ waitUntil: "networkidle" });
-    const after = await page.evaluate(() => document.documentElement.dataset.theme);
-    await context.close();
-    if (toggled === before) failures.push("theme toggle: clicking did not change the theme");
-    if (after !== toggled) failures.push(`theme toggle: ${toggled} did not survive reload (got ${after})`);
-    else lines.push(`theme toggle: ${before} -> ${toggled}, persisted across reload`);
+async function checkThemeToggle(browser) {
+  const context = await browser.newContext({
+    viewport: { width: DESKTOP_WIDTH, height: VIEWPORT_HEIGHT },
+    colorScheme: "light",
+  });
+  const page = await context.newPage();
+  await navigatePage(page);
+  const before = await page.evaluate(() => document.documentElement.dataset.theme);
+  await page.click(".theme-toggle");
+  const toggled = await page.evaluate(() => document.documentElement.dataset.theme);
+  await navigatePage(page);
+  const after = await page.evaluate(() => document.documentElement.dataset.theme);
+  await context.close();
+
+  const failures = [];
+  if (toggled === before) failures.push("theme toggle: clicking did not change the theme");
+  if (after !== toggled) failures.push(`theme toggle: expected persisted ${toggled}, received ${after}`);
+  const lines = failures.length ? [] : [`theme toggle: ${before} -> ${toggled}, persisted across reload`];
+  return { failures, lines };
+}
+
+async function prepareFocusAudit(page) {
+  return page.evaluate((selector) => {
+    const candidates = [...document.querySelectorAll(selector)].filter((element) => {
+      const style = getComputedStyle(element);
+      const bounds = element.getBoundingClientRect();
+      return element.tabIndex >= 0 && !element.closest("[inert]") &&
+        style.display !== "none" && style.visibility !== "hidden" &&
+        bounds.width > 0 && bounds.height > 0;
+    });
+    return candidates.map((element, index) => {
+      element.dataset.auditFocusIndex = String(index);
+      return {
+        index,
+        label: `${element.tagName.toLowerCase()}:${(element.textContent || element.getAttribute("aria-label") || "").trim().slice(0, 32)}`,
+        tabIndex: element.tabIndex,
+      };
+    });
+  }, FOCUSABLE_SELECTOR);
+}
+
+async function readFocusStop(page) {
+  return page.evaluate(() => {
+    const element = document.activeElement;
+    if (!(element instanceof HTMLElement)) return null;
+    const index = Number(element.dataset.auditFocusIndex);
+    if (!Number.isInteger(index)) return null;
+    const style = getComputedStyle(element);
+    const hasOutline = style.outlineStyle !== "none" && parseFloat(style.outlineWidth) > 0;
+    const hasShadow = style.boxShadow !== "none";
+    return {
+      index,
+      outline: `${style.outlineStyle} ${style.outlineWidth} ${style.outlineColor}`,
+      visible: hasOutline || hasShadow,
+    };
+  });
+}
+
+async function checkRouteFocus(browser, route) {
+  const { context, page } = await openPage(browser, { width: DESKTOP_WIDTH, theme: "light", path: route.path });
+  const candidates = await prepareFocusAudit(page);
+  const observed = [];
+  for (let index = 0; index <= candidates.length; index += 1) {
+    await page.keyboard.press("Tab");
+    const stop = await readFocusStop(page);
+    if (!stop || observed.some((item) => item.index === stop.index)) break;
+    observed.push(stop);
   }
+  await context.close();
 
-  // 5. Every keyboard stop must show a visible focus ring.
-  {
-    const { context, page } = await openPage(browser, { width: 1440, theme: "light", path: "/" });
-    const order = [];
-    for (let i = 0; i < 60; i += 1) {
-      await page.keyboard.press("Tab");
-      const stop = await page.evaluate(() => {
-        const element = document.activeElement;
-        if (!element || element === document.body) return null;
-        if (element.tagName.includes("-")) return { skip: true };
-        const style = getComputedStyle(element);
-        return {
-          label: `${element.tagName.toLowerCase()}:${(element.textContent || "").trim().slice(0, 20)}`,
-          outline: `${style.outlineStyle} ${style.outlineWidth} ${style.outlineColor}`,
-          visible: style.outlineStyle !== "none" && parseFloat(style.outlineWidth) > 0,
-        };
-      });
-      if (!stop) break;
-      if (stop.skip) continue;
-      if (order.some((item) => item.label === stop.label) && order.length > 8) break;
-      order.push(stop);
-    }
-    for (const stop of order.filter((item) => !item.visible)) {
-      failures.push(`focus ring missing on ${stop.label} (${stop.outline})`);
-    }
-    lines.push(`keyboard: ${order.length} focus stops, all with a visible ring`);
-    await context.close();
+  const failures = candidates.filter((item) => item.tabIndex > 0)
+    .map((item) => `${route.path} positive tabindex on ${item.label}: ${item.tabIndex}`);
+  const expectedOrder = candidates.map((item) => item.index);
+  const observedOrder = observed.map((item) => item.index);
+  if (JSON.stringify(observedOrder) !== JSON.stringify(expectedOrder)) {
+    failures.push(`${route.path} focus order expected ${JSON.stringify(expectedOrder)}, received ${JSON.stringify(observedOrder)}`);
   }
+  for (const stop of observed.filter((item) => !item.visible)) {
+    failures.push(`${route.path} focus ring missing on ${candidates[stop.index].label} (${stop.outline})`);
+  }
+  return { failures, line: `${route.path}: ${observed.length} focus stops in DOM order, all with a visible ring` };
+}
 
-  return { name: "behavior", failures, lines };
+async function checkKeyboard(browser, routes) {
+  const failures = [];
+  const lines = [];
+  for (const route of routes) {
+    const result = await checkRouteFocus(browser, route);
+    failures.push(...result.failures);
+    lines.push(result.line);
+  }
+  return { failures, lines };
+}
+
+function mergeReport(target, report) {
+  target.failures.push(...report.failures);
+  target.lines.push(...report.lines);
+}
+
+export async function run(browser, routes) {
+  const report = { name: "behavior", failures: [], lines: [] };
+  mergeReport(report, await checkThemeScript());
+  mergeReport(report, await checkStoredTheme(browser));
+  mergeReport(report, await checkThemeCases(browser));
+  mergeReport(report, await checkThemeToggle(browser));
+  mergeReport(report, await checkKeyboard(browser, routes));
+  return report;
 }

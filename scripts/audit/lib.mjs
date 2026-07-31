@@ -17,6 +17,14 @@ export async function requireServer() {
 }
 
 /** Opens a page with the theme pinned before any script on the page runs. */
+export async function navigatePage(page, path = "/") {
+  const response = await page.goto(`${AUDIT_URL}${path}`, { waitUntil: "networkidle" });
+  if (response?.ok()) return;
+
+  const status = response ? `HTTP ${response.status()}` : "no navigation response";
+  throw new Error(`${path} expected a successful page response, received ${status} from ${AUDIT_URL}${path}`);
+}
+
 export async function openPage(browser, { width, theme, path = "/", reducedMotion }) {
   const context = await browser.newContext({
     viewport: { width, height: VIEWPORT_HEIGHT },
@@ -25,24 +33,17 @@ export async function openPage(browser, { width, theme, path = "/", reducedMotio
     ...(reducedMotion ? { reducedMotion } : {}),
   });
   if (theme) {
-    await context.addInitScript(
-      `try { localStorage.setItem('site-theme', ${JSON.stringify(theme)}); } catch (e) {}`,
-    );
+    await context.addInitScript(`localStorage.setItem('site-theme', ${JSON.stringify(theme)});`);
   }
   const page = await context.newPage();
-  await page.goto(`${AUDIT_URL}${path}`, { waitUntil: "networkidle" });
-  await page.evaluate(() => document.fonts.ready);
+  try {
+    await navigatePage(page, path);
+    await page.evaluate(() => document.fonts.ready);
+  } catch (error) {
+    await context.close();
+    throw error;
+  }
   return { context, page };
-}
-
-/** Home plus every writing route the home page links to, so new posts are covered automatically. */
-export async function discoverRoutes(browser) {
-  const { context, page } = await openPage(browser, { width: 1440, theme: "light" });
-  const posts = await page.evaluate(() =>
-    [...document.querySelectorAll('a[href^="/writing/"]')].map((a) => new URL(a.href).pathname),
-  );
-  await context.close();
-  return [{ name: "home", path: "/" }, ...[...new Set(posts)].map((path) => ({ name: path, path }))];
 }
 
 /* ------------------------------------------------------------------ *

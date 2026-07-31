@@ -2,6 +2,7 @@
 title: Turning an internal API into a business
 description: We built it for our own wallet. Productizing it for other people was a different job than building it.
 status: draft
+date: 2026-07-31
 order: 2
 ---
 

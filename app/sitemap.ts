@@ -12,5 +12,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...(post.date ? { lastModified: new Date(`${post.date}T00:00:00Z`) } : {}),
   }));
 
-  return [{ url: siteUrl }, ...posts];
+  return [{ url: siteUrl }, { url: `${siteUrl}/writing` }, ...posts];
 }

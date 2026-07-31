@@ -10,7 +10,7 @@ import {
 import { openPage } from "./lib.mjs";
 
 const INTERACTIVE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
-const EDGE_SELECTORS = [".post-status", ".post-header h1", ".post-dek", ".post-body", ".markdown-content h2", ".post-footer"];
+const EDGE_SELECTORS = [".post-date", ".post-header h1", ".post-dek", ".post-body", ".markdown-content h2", ".post-footer"];
 
 const collectTargets = ({ selector, exempt, aa, aaa }) => {
   const label = (element) => {

@@ -21,15 +21,18 @@ Use these in order:
 
 | Path | Responsibility |
 |---|---|
+| `config/features.json` | Release visibility flags |
 | `app/layout.tsx` | Global metadata, language, font loading, and root document |
 | `app/page.tsx` | Home-page composition and section order |
+| `app/writing/page.tsx` | Complete writing index |
 | `app/writing/[slug]/` | Static post route and post-specific not-found state |
 | `components/SiteChrome.tsx` | Theme control |
-| `components/ArticleChrome.tsx` | Shared sticky chrome for article pages |
+| `components/ArticleChrome.tsx` | Shared sticky chrome for writing pages |
+| `components/WritingList.tsx` | Shared dated post list |
 | `components/MarkdownArticle.tsx` | Design-system renderer for Markdown elements |
 | `content/site.tsx` | Work, building, and investing content |
 | `content/writing/*.md` | Blog post source files |
-| `lib/posts.ts` | Post discovery, frontmatter validation, ordering, and labels |
+| `lib/posts.ts` | Post discovery, frontmatter validation, ordering, and date formatting |
 | `styles/tokens.css` | Runtime implementation of design tokens |
 | `app/globals.css` | Layout and component rules built from those tokens |
 | `next.config.ts` | Static-export configuration |
@@ -51,10 +54,11 @@ Use these in order:
 
 ## Known open work
 
-- The `Personal AI assistant` description in `content/site.tsx` is an explicit
-  placeholder. Do not replace it until Andrey supplies the factual sentence.
-- The three current writing files are public previews labelled `Draft`; none is
-  published yet.
+- The three current writing files are public drafts; none is published yet.
+  Their status is technical metadata and is not shown to visitors.
+- Writing is currently hidden from the home page and its section navigation by
+  `config/features.json`. The archive and article routes remain implemented and
+  directly accessible; flip the flag when they are ready to surface.
 - `public/og.png` is generated, not hand-edited. Its description is a separate
   approved line from the hero and is set at 32px, where it fits two lines with
   7px to spare in the 640px column. Editing that line means re-measuring the
@@ -81,9 +85,11 @@ Post copy.
 ```
 
 - The filename becomes the slug. Do not duplicate it in frontmatter.
-- `status` is `draft` or `published`; `date` and `order` are optional.
-- `status` is a visible editorial label, not an access control. Draft files are
-  listed and receive static public routes; keep private drafts outside this folder.
+- `status` is `draft` or `published`; `date` and `order` are optional. A present
+  date is shown on the home page, writing index, and article page.
+- `status` is technical metadata, not a visible label or access control. Draft
+  files are listed and receive static public routes; keep private drafts outside
+  this folder.
 - Ordered posts come first. Equal or missing `order` values fall back to newest
   date, then slug, so builds remain deterministic.
 - The page creates the `<h1>` from `title`, so article bodies start at `##`.
@@ -112,11 +118,13 @@ Post copy.
 - Text links inherit their surrounding hierarchy at rest, switch to `--accent`
   on hover, and use the accent focus ring for keyboard navigation. Do not make email or résumé links permanently
   blue; persistent accent is reserved for semantic signals such as roles,
-  post status, runner state, and writing arrows.
+  runner state, and writing navigation.
 - Use rules only for structural boundaries. Repeated rows rely on spacing.
 - Respect `prefers-reduced-motion` and preserve visible keyboard focus.
 
 ## Working locally
+
+Use Node `>=20.19.4`; check `node --version` before installs, builds, or audits.
 
 ```bash
 npm install
@@ -124,12 +132,13 @@ npm run dev -- -p 3001
 npm run build
 ```
 
-Use `http://localhost:3001` in this workspace. Port `3000` may belong to another
-process; never kill or replace an unknown service just to reclaim it.
+Use one server at `http://localhost:3001`. Check the owning process before
+starting or stopping it; never kill an unknown service to reclaim a port.
 
-`npm run build` is the authoritative type, route, and static-export check. Stop
-the dev server before building, then restart it on `3001` so the shared `.next`
-directory is not mutated concurrently.
+Never run `next dev` and `next build` concurrently in the same working tree,
+including from another agent: both mutate `.next` and can corrupt the live
+server. Stop dev before the authoritative build, then restart it on `3001`. If
+the server must stay available, build from an isolated temporary copy.
 
 ## Before handing work back
 
@@ -139,6 +148,6 @@ directory is not mutated concurrently.
   server on `3001`.
 - Check 320/375px, 768px, and 1440px with no horizontal overflow.
 - Check light and dark themes.
-- Verify home → post → `back to writing`, plus `back to top`.
+- Verify home → `read all` → post → `all writings`, plus `back` and `back to top`.
 - New standalone controls have practical 44px targets and visible focus.
 - Read changed copy aloud. If it sounds like a LinkedIn post, rewrite it.

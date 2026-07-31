@@ -81,7 +81,7 @@ The theme follows the operating system on a first visit and is resolved by an in
 
 Signal blue is the identity accent and is no longer user-selectable. It carries two values because no single tone at 225° clears 4.5:1 on both `#FAF9F6` and `#202020`: `#2B61FF` in light, `#5B81F1` in dark. `--runner-blue` stays a separate token with the same pair, so the execution state can diverge from the identity accent again without touching components.
 
-Text links inherit the color of their surrounding hierarchy at rest, move to `--accent` on hover, and use the accent focus ring for keyboard navigation. Email and résumé download follow the same interaction rule as the social links instead of appearing permanently active. Footer navigation remains muted at rest because it belongs to footer furniture. Persistent accent is reserved for semantic signals: the hero role phrase, work roles, building metadata, post and error status, writing arrows, and the runner sequence.
+Text links inherit the color of their surrounding hierarchy at rest, move to `--accent` on hover, and use the accent focus ring for keyboard navigation. Email and résumé download follow the same interaction rule as the social links instead of appearing permanently active. Footer navigation remains muted at rest because it belongs to footer furniture. Persistent accent is reserved for semantic signals: work roles, building metadata, error status, writing navigation, and the runner sequence.
 
 The eval runner uses fixed signal blue for execution state. Only the left-hand step label animates across a 28-second cycle: one second fading in, two seconds held, and one second fading out before the next step begins. The sequence is `frame → inspect → define → build → measure → learn → decide`. Descriptions and row backgrounds remain static. This stays independent from the identity accent.
 
@@ -91,11 +91,11 @@ Six steps, each one distinguishable: **44 / 18 / 16 / 14 / 11 / 10**. Every one 
 
 | Token | Size | Used by |
 |---|---|---|
-| `--text-title` | clamp 36–44px | hero name, post title, error title |
+| `--text-title` | clamp 36–44px | hero name, writing index, post title, error title |
 | `--text-lede` | 18px | post dek, article blockquote |
 | `--text-body` | 16px | article prose, hero identity line |
 | `--text-content` | 14px | section copy, terminal, contact links, code blocks |
-| `--text-small` | 11px | navigation, metadata, status labels, footer |
+| `--text-small` | 11px | navigation, publication dates, metadata, footer |
 | `--text-tiny` | 10px | section numbers, terminal chrome |
 
 The title is a clamp, not a step, so it scales with the viewport. `--text-title-compact` (30px) is part of the same axis: the hero name keeps a smaller size below 672px so it stays on one line.
@@ -114,7 +114,7 @@ Work headers keep company and role together on the left, with the employment per
 
 Contact keeps the primary email first, the résumé download directly below it, and social profiles as the final low-emphasis row.
 
-Writing entries are internal routes, marked with a right arrow rather than an external-link arrow. Post pages reuse the sticky chrome, keep article prose at a `608px` reading measure inside the `656px` shell, and provide 44px targets for returns to both Writing and the page top.
+Writing entries are internal routes, marked with a right arrow rather than an external-link arrow. Publication dates appear in muted mono; technical publication status is not rendered. When `showWritingOnHome` is enabled in `config/features.json`, the home page previews three posts and ends with `read all →`; `/writing` always lists the complete archive. Articles return to that archive with `← all writings`. The archive returns to the home Writing section when it is visible, otherwise to the home page. Post pages reuse the sticky chrome, keep article prose at a `608px` reading measure inside the `656px` shell, and provide 44px targets for writing navigation and the page top.
 
 Writing source files live in `content/writing/*.md`. The filename defines the route slug; frontmatter supplies title, description, status, and optional publication date. Article bodies start at `##`: level-two headings become numbered sections, blockquotes become accent takeaways, and all other Markdown elements inherit the shared article renderer. Raw HTML and per-post presentation are intentionally unavailable so content cannot bypass the design system.
 
@@ -164,3 +164,5 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 | 2026-07-31 | Make section separation asymmetric, 72 above a rule and 40 below | A rule centred in its own whitespace divides two sections equally and belongs to neither; moving it toward the heading it introduces makes it read as that section's opening |
 | 2026-07-31 | Apply the same pair to the hero edge and the footer border | They are rules too. Leaving them on the old symmetric spacing would have made two of the seven boundaries read differently |
 | 2026-07-31 | Enforce SC 2.5.8 (24px, AA) and report 44px as AAA | 44px is Level AAA and the Apple guideline, not the standard the site is held to; the audit was failing builds over an enhancement |
+| 2026-07-31 | Keep post status technical and hidden | Publication workflow metadata does not help a visitor scan or read the writing |
+| 2026-07-31 | Add a dated writing index and explicit return paths | Keep the home page compact while making the complete archive and article navigation predictable |

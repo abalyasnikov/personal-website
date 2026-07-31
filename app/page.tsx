@@ -1,10 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SiteChrome } from "@/components/SiteChrome";
+import { WritingList } from "@/components/WritingList";
+import features from "@/config/features.json";
 import { building, investing, work } from "@/content/site";
-import { getAllPosts, getPostLabel } from "@/lib/posts";
+import { getAllPosts } from "@/lib/posts";
 
-const nav = ["who", "work", "building", "writing", "investing", "contact"];
+const nav = [
+  "who",
+  "work",
+  "building",
+  ...(features.showWritingOnHome ? ["writing"] : []),
+  "investing",
+  "contact",
+];
 
 const productEval = [
   ["frame", "where user value is blocked"],
@@ -29,7 +38,9 @@ function Section({ number, id, title, children }: { number: string; id: string; 
 }
 
 export default function Home() {
-  const posts = getAllPosts();
+  const posts = features.showWritingOnHome ? getAllPosts() : [];
+  const investingNumber = features.showWritingOnHome ? "05" : "04";
+  const contactNumber = features.showWritingOnHome ? "06" : "05";
 
   return (
     <main className="site-shell" id="top">
@@ -47,7 +58,7 @@ export default function Home() {
           <Image src="/profile.webp" width={384} height={384} priority alt="Portrait of Andrey Balyasnikov" />
           <div>
             <h1 id="page-title">andrey</h1>
-            <p><span className="accent-word">Product lead</span> building consumer products and developer platforms across fintech and crypto.</p>
+            <p>Product lead building consumer products and developer platforms across fintech and crypto.</p>
           </div>
         </div>
 
@@ -98,25 +109,20 @@ export default function Home() {
           {building.map((item) => (
             <div className="plain-row" key={item.name}>
               <div><h3>{item.name}</h3><span>{item.meta}</span></div>
-              <p className={item.placeholder ? "placeholder" : undefined}>{item.description}</p>
+              <p>{item.description}</p>
             </div>
           ))}
         </div>
       </Section>
 
-      <Section number="04" id="writing" title="writing">
-        <div className="writing-list">
-          {posts.map((post) => (
-            <Link href={`/writing/${post.slug}`} key={post.slug}>
-              <span>{getPostLabel(post)}</span>
-              <div><h3>{post.title}</h3><p>{post.description}</p></div>
-              <b aria-hidden="true">→</b>
-            </Link>
-          ))}
-        </div>
-      </Section>
+      {features.showWritingOnHome ? (
+        <Section number="04" id="writing" title="writing">
+          <WritingList posts={posts.slice(0, 3)} />
+          <Link className="writing-all-link" href="/writing">read all →</Link>
+        </Section>
+      ) : null}
 
-      <Section number="05" id="investing" title="angel investing">
+      <Section number={investingNumber} id="investing" title="angel investing">
         <div className="plain-list">
           {investing.map((item) => (
             <div className="plain-row" key={item.name}>
@@ -133,7 +139,7 @@ export default function Home() {
         </div>
       </Section>
 
-      <Section number="06" id="contact" title="contact">
+      <Section number={contactNumber} id="contact" title="contact">
         <p className="lede">Currently looking for product leadership or senior hands-on roles.</p>
         <a className="email-link" href="mailto:andrew.balyasnikov@gmail.com">andrew.balyasnikov@gmail.com ↗</a>
         <a className="resume-link" href="/andrey-balyasnikov-resume.pdf" download>download résumé ↓</a>

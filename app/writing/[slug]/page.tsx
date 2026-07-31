@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArticleChrome } from "@/components/ArticleChrome";
 import { MarkdownArticle } from "@/components/MarkdownArticle";
-import { getAllPosts, getPost, getPostLabel } from "@/lib/posts";
+import { formatPostDate, getAllPosts, getPost } from "@/lib/posts";
 
 type PostPageProps = {
   params: Promise<{ slug: string }>;
@@ -57,7 +57,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
       <article className="post">
         <header className="post-header">
-          <p className="post-status">{getPostLabel(post)}</p>
+          {post.date ? <time className="post-date" dateTime={post.date}>{formatPostDate(post.date)}</time> : null}
           <h1>{post.title}</h1>
           <p className="post-dek">{post.description}</p>
         </header>
@@ -67,7 +67,7 @@ export default async function PostPage({ params }: PostPageProps) {
         </div>
 
         <footer className="post-footer">
-          <Link href="/#writing">← back to writing</Link>
+          <Link href="/writing">← all writings</Link>
           <a href="#top">back to top ↑</a>
         </footer>
       </article>
