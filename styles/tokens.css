@@ -1,0 +1,62 @@
+:root {
+  color-scheme: light;
+
+  /* Runtime accent axis — changed by the visible exploration controls. */
+  --accent: #4f7cff;
+
+  /* Light baseline, measured against martin-slaney.com. */
+  --canvas: #faf9f6;
+  --surface: #f7f5f1;
+  --ink: #171717;
+  --muted: #737373;
+  --rule: #e7e2da;
+  --terminal-green: #95c85a;
+  --runner-blue: #4f7cff;
+
+  /* Type roles. */
+  --font-sans: "Inter Variable", sans-serif;
+  --font-mono: "JetBrains Mono Variable", monospace;
+  --font-accent: "Caveat Variable", cursive;
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-body: 1rem;
+  --text-title: clamp(2.25rem, 6vw, 2.75rem);
+
+  /* 4px spacing rhythm. */
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --s7: 3rem;
+  --s8: 4rem;
+  --s9: 6rem;
+
+  --page-width: 41rem;
+  --page-gutter: clamp(1.25rem, 5vw, 2rem);
+  --radius-sm: 0.25rem;
+  --radius-round: 999px;
+  --fast: 150ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --canvas: #faf9f6;
+  --surface: #f7f5f1;
+  --ink: #171717;
+  --muted: #737373;
+  --rule: #e7e2da;
+  --terminal-green: #4f7629;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #191919;
+  --surface: #202020;
+  --ink: #e9e7e2;
+  --muted: #929292;
+  --rule: #383838;
+  --terminal-green: #95c85a;
+}

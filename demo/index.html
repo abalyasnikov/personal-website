@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<!--
+  balyasnikov.com — design demo
+
+  Self-contained. Open in any browser, no build step, no dependencies beyond
+  Google Fonts. This is a decision tool, not the site.
+
+  The system this renders is written down in ./DESIGN.md. Read that first:
+  three type sizes, one left edge, one measure, a 4px spacing scale. Every
+  value below comes from a token; nothing is a one-off.
+
+  The bar pinned to the bottom carries four independent axes: paper, accent,
+  type, figures. Arrow keys cycle accents. The theme button flips light and dark
+  over any combination. Choices persist to localStorage.
+
+  Accents below 4.5:1 against the current paper are darkened until they pass; the
+  status line reports when that happened, and every swatch shows the colour that
+  will actually render. Swatches marked "calibration" are there to be compared
+  against, not shipped — the status line says so when one is selected.
+
+  Text marked [needs ...] is waiting on Andrey — see "Open questions" in SPEC.md.
+  Never replace a placeholder with a plausible guess.
+
+  When the direction is locked: delete the #picker markup, its CSS block, the
+  <script> at the bottom, and the unused font families from the <link> above.
+  Then write the winning values into demo/DESIGN.md's frontmatter and log the choice
+  in SPEC.md.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Andrey Balyasnikov</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- impeccable-disable-next-line design-system-font,overused-font -- Inter and JetBrains Mono are the reference's pairing, loaded only so the type axis can be compared against it; they leave with the picker -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================================================
+     Tokens. See ./DESIGN.md. Nothing below this block invents a value.
+     ========================================================================== */
+  :root {
+    /* Colour — paper set is an open axis, default is warm. */
+    --paper: #FAF9F6;
+    --ink:   #171717;
+    --muted: #666666;
+    --rule:  #E4DFD6;
+    --accent: #12306E;
+
+    /* Type families — two, never three. `--meta` is the face that carries
+       dates; in the single-family pairing it is the same face as --display.
+       Open axis: the picker swaps all three at once. */
+    --display: "Archivo", -apple-system, BlinkMacSystemFont, sans-serif;
+    --prose:   "Newsreader", Georgia, serif;
+    --meta:    "Archivo", -apple-system, sans-serif;
+
+    /* Type sizes. Three. That is the whole system. */
+    --t-display: clamp(30px, 1.6rem + 1.1vw, 36px);
+    --t-body: 16px;
+    --t-ui: 12px;
+
+    /* Space — 4px base. */
+    --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px; --s5: 24px;
+    --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px;
+
+    /* Shape. */
+    --r: 3px;
+    --avatar: 72px;
+    --rail: 128px;
+
+    /* Measure — 72 characters of the prose face, so it re-measures itself
+       when the type axis changes. Renders 74.6 actual characters, the top of
+       the comfortable range; 76ch would match the reference and overshoot it. */
+    --measure: 72ch;
+
+    /* Motion — exponential ease-out, one authored moment. */
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --dur: 560ms;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--prose);
+    font-size: var(--t-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Light text on a dark surface reads heavier. Compensate on leading and
+     tracking rather than dropping the weight. */
+  html[data-theme="dark"] body {
+    line-height: 1.65;
+    letter-spacing: 0.004em;
+  }
+
+  body { padding-bottom: 132px; }
+
+  /* One left edge, one measure. Everything on the page lives in this column
+     and ends at its right edge — prose, hairlines, dates. */
+  .wrap {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: 0 var(--s5);
+  }
+
+  /* ---- focus -------------------------------------------------------------
+     The browser default ring is a Chrome blue that belongs to no palette here
+     and all but vanishes on dark paper. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--r);
+  }
+
+  /* ==========================================================================
+     Type roles. Five of them, one implementation each — the list in demo/DESIGN.md
+     section 2 and this block are the same list. Everything below this point is
+     layout and colour; no rule down there sets a family, a size or a weight.
+
+     Two families, never three, and no italic anywhere. Three families landed
+     inside a single row — "Zerion" grotesque, "Head of Product" mono, the date
+     mono again — and that is what read as muddled rather than considered.
+     ========================================================================== */
+
+  /* display — the hero name, once per page */
+  .hero h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: var(--t-display);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+  }
+
+  /* strong — names you scan down a column: companies, projects, post titles */
+  .entry-name,
+  .inv-name,
+  .post-title {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: var(--t-body);
+    line-height: 1.35;
+    letter-spacing: -0.012em;
+  }
+
+  /* value — body size, but read rather than scanned: the position line and the
+     contact values. 600 turned an email address into a headline. */
+  .hero .position,
+  .contact-val {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: var(--t-body);
+    line-height: 1.4;
+  }
+
+  /* body — all prose. Set on <body>; nothing restates it. */
+
+  /* meta — everything at 12px. `label` is the same role with case and tracking
+     added. The section label and the nav are not data, so they stay in the
+     display face; only .data takes the metadata face. */
+  h2,
+  .ui,
+  .data {
+    font-size: var(--t-ui);
+    font-weight: 500;
+    line-height: 1.45;
+  }
+
+  h2,
+  .ui { font-family: var(--display); }
+
+  h2 {
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Date ranges. Tabular figures so the columns line up whichever face wins. */
+  .data {
+    font-family: var(--meta);
+    font-weight: 400;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    color: var(--muted);
+  }
+
+  /* Blocked on Andrey. Declares its own size and weight so it does not inherit
+     600/16px when it sits inside a contact value. */
+  .ph {
+    font-family: var(--display);
+    font-size: var(--t-ui);
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  /* ---- header ---- */
+  .topbar {
+    padding: var(--s6) 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s4);
+  }
+
+  .topnav {
+    display: flex;
+    gap: var(--s4);
+  }
+
+  .topnav a { color: var(--muted); text-decoration: none; }
+
+  .themebtn {
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: var(--r);
+    padding: var(--s1) var(--s2);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* ---- hero --------------------------------------------------------------
+     The photo sits at the right edge of the measure so the name keeps the
+     page's single left edge. A 72px avatar in front of the name pushed every
+     word of the hero 98px right of every word below it. */
+  .hero {
+    padding: var(--s9) 0 var(--s7);
+    display: grid;
+    grid-template-columns: 1fr var(--avatar);
+    gap: var(--s5);
+    align-items: start;
+  }
+
+  .avatar {
+    width: var(--avatar);
+    height: var(--avatar);
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--display);
+    font-size: var(--t-ui);
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .hero h1 { margin: 0 0 var(--s2); }
+
+  /* No italic anywhere on this page. It carries the accent instead, which is
+     the same job the role does beside a company name below. */
+  .hero .position { color: var(--accent); margin: 0 0 var(--s1); }
+
+  .hero .status { margin: 0 0 var(--s5); }
+
+  .hero p.who { margin: 0; }
+
+  /* ---- sections ----
+     A hairline marks a section boundary and nothing else marks one. It sits
+     in the middle of the 96px gap: 48 above, line, 48, label, 32, content.
+     Without it the entry hairlines were the strongest horizontal marks on the
+     page, so a 64px break inside a section read heavier than a 96px break
+     between two — the hierarchy was upside down.
+
+     The 48-above / 32-below asymmetry is the point: a heading binds to what
+     follows it. Equal or inverted, every section reads as a caption for the
+     block above. */
+  .hero + section,
+  section + section { border-top: 1px solid var(--rule); }
+
+  section { padding-bottom: var(--s7); }
+
+  h2 {
+    margin: var(--s7) 0 var(--s6);
+    scroll-margin-top: var(--s5);
+  }
+
+  /* ---- entries and posts: the same separated-block pattern ----
+     32 above the hairline, 32 below. Half the section break, which is what
+     makes it read as a smaller break. */
+  .entry + .entry,
+  .post + .post {
+    margin-top: var(--s6);
+    padding-top: var(--s6);
+    border-top: 1px solid var(--rule);
+  }
+
+  .entry-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s4);
+    margin: 0 0 var(--s3);
+  }
+
+  /* The role is the one piece of colour in the row. It is what makes each
+     entry read as a line rather than a paragraph with a bold word on top. */
+  .entry-role { margin-left: var(--s2); color: var(--accent); }
+
+  .entry-date { white-space: nowrap; flex-shrink: 0; }
+
+  .entry p, .inv-desc, .post-desc, .hero p.who { margin: 0; }
+
+  /* ---- figures ----
+     Plain by default. The picker can switch them to accent colour, or to
+     accent colour plus a size jump — the original proposal, kept only so the
+     comparison can be made once and then closed. */
+  .fig { font-feature-settings: "tnum" 1, "lnum" 1; }
+
+  html[data-fig="colour"] .fig { color: var(--accent); }
+
+  html[data-fig="loud"] .fig {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.34em;
+    letter-spacing: -0.028em;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  /* ---- rail lists: investing, contact ----
+     One rail token, two uses. Previously 148px here and 96px there, for no
+     reason either could name. */
+  .rail {
+    display: grid;
+    grid-template-columns: var(--rail) 1fr;
+    gap: var(--s2) var(--s5);
+    align-items: baseline;
+  }
+
+  /* Rail lists set their own rhythm — tight, because each row is one line.
+     The paragraph blocks under `work` are 32/32; a scannable list is 24/24. */
+  .inv + .inv {
+    margin-top: var(--s5);
+    padding-top: var(--s5);
+    border-top: 1px solid var(--rule);
+  }
+
+  .contact-row + .contact-row { margin-top: var(--s3); }
+
+  .contact-key { color: var(--muted); }
+
+  /* An <a> with no colour falls back to the UA's #00EE — which passes contrast
+     and so slips past the detector. Every anchor on this page states its
+     colour. */
+  .contact-val { color: var(--ink); text-decoration: none; }
+
+  /* All prose is ink. Grey is for labels, keys and dates — the furniture —
+     never for a sentence someone is meant to read. */
+  .inv-desc,
+  .post-desc { color: var(--ink); }
+
+  /* ---- writing ---- */
+  .post { display: block; text-decoration: none; color: inherit; }
+
+  .post-date { display: block; margin: 0 0 var(--s2); }
+
+  .post-title { margin: 0 0 var(--s2); }
+
+  .more {
+    display: inline-block;
+    margin-top: var(--s6);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .more:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  .cvbtn {
+    display: inline-block;
+    margin-top: var(--s6);
+    color: var(--ink);
+    text-decoration: none;
+    border: 1px solid var(--rule);
+    border-radius: var(--r);
+    padding: var(--s2) var(--s4);
+  }
+
+  footer {
+    margin-top: var(--s7);
+    padding: var(--s6) 0 var(--s8);
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+  }
+
+  /* ---- hover ----
+     One transition declaration for the whole page. Hover is a colour change
+     and never a lift, a scale or a shadow. */
+  a, .themebtn { transition: color .18s var(--ease), border-color .18s var(--ease); }
+
+  .topnav a:hover,
+  .themebtn:hover { color: var(--ink); }
+
+  .themebtn:hover { border-color: var(--muted); }
+
+  .contact-val:hover,
+  .post:hover .post-title { color: var(--accent); }
+
+  .cvbtn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---- motion ------------------------------------------------------------
+     One authored moment: the hero settles on load. There is deliberately no
+     per-section scroll fade — an identical entrance seven times is not one
+     moment, and content that is invisible until a handler runs is content
+     that ships blank when the handler doesn't. */
+  @keyframes settle {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .hero .avatar { animation: settle var(--dur) var(--ease) 40ms both; }
+  .hero h1       { animation: settle var(--dur) var(--ease) 0ms   both; }
+  .hero .position{ animation: settle var(--dur) var(--ease) 70ms  both; }
+  .hero .status  { animation: settle var(--dur) var(--ease) 120ms both; }
+  .hero p.who    { animation: settle var(--dur) var(--ease) 170ms both; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 0 var(--s5); }
+    .topnav { gap: var(--s3); flex-wrap: wrap; }
+    .hero {
+      grid-template-columns: 1fr;
+      gap: var(--s5);
+      padding: var(--s7) 0 var(--s8);
+    }
+    .hero .avatar { order: -1; }
+    .rail { grid-template-columns: 1fr; gap: var(--s1); }
+    /* Stacked, the key and its value are 4px apart, so the gap between rows
+       has to open up or the whole list reads as one block. */
+    .contact-row + .contact-row { margin-top: var(--s4); }
+    .entry-head { flex-direction: column; gap: var(--s1); }
+    body { padding-bottom: 164px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+
+  /* ================= palette picker — preview tool, does not ship ============ */
+  #picker {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 100;
+    background: var(--paper);
+    border-top: 1px solid var(--rule);
+    padding: var(--s2) var(--s4) var(--s3);
+    font-family: var(--meta);
+    font-size: var(--t-ui);
+    line-height: 1.45;
+    color: var(--muted);
+  }
+
+  #picker .row {
+    display: flex;
+    align-items: center;
+    gap: var(--s1) 6px;
+    flex-wrap: wrap;
+    max-width: 1100px;
+    margin: 0 auto 6px;
+  }
+
+  #picker .rowlab { width: 52px; flex-shrink: 0; }
+
+  #picker .sw {
+    width: 26px; height: 20px;
+    border-radius: var(--r);
+    border: 1px solid var(--rule);
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  #picker .sw span { position: absolute; inset: 3px; border-radius: var(--r); }
+
+  #picker .sw[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  #picker .gap { width: var(--s3); flex-shrink: 0; }
+
+  #picker .pill {
+    font-family: var(--meta);
+    font-size: var(--t-ui);
+    background: none;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    border-radius: var(--r);
+    padding: 3px 9px;
+    cursor: pointer;
+  }
+
+  #picker .pill[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); }
+
+  #picker .meta {
+    margin: 7px auto 0;
+    max-width: 1100px;
+    display: flex;
+    gap: var(--s3);
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  #picker .name { color: var(--ink); font-weight: 500; }
+  /* Pass / warn / stop. Deliberately outside the site palette — this is tool
+     chrome reporting on the palette, so it must not be made of it. It leaves
+     with the picker. */
+  #picker .ok   { color: #1a7f4b; } /* impeccable-disable-line design-system-color */
+  #picker .warn { color: #9a5b00; } /* impeccable-disable-line design-system-color */
+  #picker .stop { color: #a3231c; } /* impeccable-disable-line design-system-color */
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <nav class="topnav ui" aria-label="Sections">
+      <a href="#work">work</a>
+      <a href="#building">building</a>
+      <a href="#investing">investing</a>
+      <a href="#writing">writing</a>
+      <a href="#contact">contact</a>
+    </nav>
+    <button class="themebtn ui" id="themebtn">dark</button>
+  </div>
+
+  <header class="hero">
+    <div>
+      <h1>Andrey Balyasnikov</h1>
+      <p class="position">Product Lead</p>
+      <p class="status data">Lisbon · <span class="ph">[status line — needs your wording]</span></p>
+      <p class="who">First product hire at Zerion. Built a self-custodial wallet from zero to a million monthly active wallets, then turned the API we had built for ourselves into more than half of company revenue.</p>
+    </div>
+    <div class="avatar">photo</div>
+  </header>
+
+  <section id="work">
+    <h2>Work</h2>
+
+    <div class="entry">
+      <div class="entry-head">
+        <div><span class="entry-name">Zerion</span><span class="entry-role ui">Head of Product</span></div>
+        <span class="entry-date data">Jun 2018 — Jun 2026</span>
+      </div>
+      <p>First product hire. Built a self-custodial crypto wallet from zero to <span class="fig">1M+</span> monthly active wallets, then productized the API we had built for ourselves into more than half of company revenue, with Coinbase, Kraken and Uniswap as clients. Most recently Zerion CLI, which lets AI agents read portfolios and execute swaps, bridges and signing across EVM and Solana, bounded by token policies.</p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-head">
+        <div><span class="entry-name">Evotor</span><span class="entry-role ui">Head of Product</span></div>
+        <span class="entry-date data">May 2016 — May 2018</span>
+      </div>
+      <p>Invited by QIWI's founder to build the company from scratch. Took the smart-POS app marketplace from nothing to <span class="fig">$12M</span> a month across 500K business customers.</p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-head">
+        <div><span class="entry-name">QIWI</span><span class="entry-role ui">PM → Senior PM</span></div>
+        <span class="entry-date data">Apr 2014 — Jun 2016</span>
+      </div>
+      <p>Relaunched the mobile apps for Russia's largest payment system, <span class="fig">70M+</span> monthly actives, and built cross-border payments with AliExpress, JD.com and eBay.</p>
+    </div>
+  </section>
+
+  <section id="building">
+    <h2>Building</h2>
+
+    <div class="entry">
+      <div class="entry-head"><div><span class="entry-name">ML trading systems</span></div></div>
+      <p>Prediction markets and Solana. Data pipelines, feature engineering, backtesting and live execution, run end to end.</p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-head"><div><span class="entry-name">Personal AI assistant</span></div></div>
+      <p><span class="ph">[needs one sentence from you]</span> Built on OpenClaw.</p>
+    </div>
+  </section>
+
+  <section id="investing">
+    <h2>Investing</h2>
+
+    <div class="rail inv">
+      <div class="inv-name">Alliance DAO</div>
+      <p class="inv-desc">Web3 accelerator and founder community. Invested when it was still DeFi Alliance.</p>
+    </div>
+    <div class="rail inv">
+      <div class="inv-name">zkSync</div>
+      <p class="inv-desc">ZK rollup scaling Ethereum, built by Matter Labs.</p>
+    </div>
+    <div class="rail inv">
+      <div class="inv-name">Socket</div>
+      <p class="inv-desc">Chain abstraction. One API to read state and write transactions across 20+ chains.</p>
+    </div>
+    <div class="rail inv">
+      <div class="inv-name">CoW Swap</div>
+      <p class="inv-desc">A DEX that settles through batch auctions and coincidence of wants, so orders are protected from MEV.</p>
+    </div>
+    <div class="rail inv">
+      <div class="inv-name">Align Labs</div>
+      <p class="inv-desc">Financial infrastructure for stablecoins. Cross-border payments over stablecoin and fiat rails with named IBANs.</p>
+    </div>
+  </section>
+
+  <section id="writing">
+    <h2>Writing</h2>
+
+    <a class="post" href="#">
+      <span class="post-date data">placeholder</span>
+      <p class="post-title">The day push notifications broke</p>
+      <p class="post-desc"><span class="ph">[placeholder — your drafts go here]</span> Usage dropped 20–30% in a day, which told us which surface actually held the product together.</p>
+    </a>
+    <a class="post" href="#">
+      <span class="post-date data">placeholder</span>
+      <p class="post-title">Turning an internal API into a business</p>
+      <p class="post-desc"><span class="ph">[placeholder]</span> We built it for our own wallet. Productizing it for other people was a different job than building it.</p>
+    </a>
+    <a class="post" href="#">
+      <span class="post-date data">placeholder</span>
+      <p class="post-title">Running ML against prediction markets</p>
+      <p class="post-desc"><span class="ph">[placeholder]</span> What survives contact with live execution, and what only ever worked in the backtest.</p>
+    </a>
+
+    <a class="more ui" href="#">all writing →</a>
+  </section>
+
+  <section id="contact">
+    <h2>Contact</h2>
+
+    <div class="rail contact-row"><span class="contact-key ui">email</span><a class="contact-val" href="mailto:andrew.balyasnikov@gmail.com">andrew.balyasnikov@gmail.com</a></div>
+    <div class="rail contact-row"><span class="contact-key ui">linkedin</span><a class="contact-val" href="#">in/abalyasnikov</a></div>
+    <div class="rail contact-row"><span class="contact-key ui">github</span><a class="contact-val" href="#"><span class="ph">[needed]</span></a></div>
+    <div class="rail contact-row"><span class="contact-key ui">x</span><a class="contact-val" href="#"><span class="ph">[needed]</span></a></div>
+    <div class="rail contact-row"><span class="contact-key ui">telegram</span><a class="contact-val" href="#"><span class="ph">[needed]</span></a></div>
+
+    <a class="cvbtn ui" href="#">download CV (pdf) ↓</a>
+  </section>
+
+  <footer class="ui">Lisbon, Portugal</footer>
+
+</div>
+
+<div id="picker">
+  <div class="row"><span class="rowlab">paper</span><span id="papers"></span></div>
+  <div class="row"><span class="rowlab">accent</span><span id="accents"></span></div>
+  <div class="row"><span class="rowlab">type</span><span id="fonts"></span></div>
+  <div class="row"><span class="rowlab">figures</span><span id="figs"></span></div>
+  <div class="meta">
+    <span class="name" id="pname"></span>
+    <span id="pcontrast"></span>
+    <span id="pnote"></span>
+  </div>
+  <div class="meta">
+    <span>← → cycles accents · the gap in the accent row separates candidates from calibration-only swatches · this bar is a preview tool, it does not ship</span>
+  </div>
+</div>
+
+<script>
+/* Preview tool. Four independent axes so each can be judged on its own: paper
+   (neutral only), accent, type, figures. Accents that fall below 4.5:1 on the
+   current paper are auto-adjusted toward black or white until they pass, and
+   the bar says when that happened.
+
+   Accents are ordered: candidates first, then a gap, then swatches that exist
+   only so the candidates can be compared against something. Anything after the
+   gap carries a `stop` note and is not a shipping option. */
+
+const PAPERS = [
+  { n: "warm (reference's)", l: ["#FAF9F6","#171717","#666666","#E4DFD6"], d: ["#191817","#E8E4DE","#969696","#2E2B27"] },
+  { n: "cool",               l: ["#FBFBFD","#14161A","#5F6570","#E4E6EB"], d: ["#0E1013","#E6E8EC","#99A0AB","#23262C"] },
+  { n: "plain white",        l: ["#FFFFFF","#111111","#5C5C5C","#E5E7EB"], d: ["#0A0A0A","#EDEDED","#949494","#222222"] },
+];
+
+const ACCENTS = [
+  { n: "Ink Navy",      c: "#12306E" },
+  { n: "Royal Blue",    c: "#3447AA" },
+  { n: "Pine",          c: "#14532D" },
+  { n: "Blue Whale",    c: "#03363D" },
+  { n: "Signal Blue",   c: "#0057FF" },
+  { n: "Ultramarine",   c: "#4B3FD6", note: "violet — the most-cited generated-UI accent, and the fitter lightens it toward lavender in dark mode" },
+  { gap: true },
+  { n: "Sulu green",    c: "#9FE870", stop: "fill colour, not a text colour — calibration only" },
+  { n: "Bright Sun",    c: "#FCDB32", stop: "fill colour, not a text colour — calibration only" },
+  { n: "Dragonfruit",   c: "#FF4696", stop: "fill colour, not a text colour — calibration only" },
+  { n: "reference's own", c: "#FF4D2E", stop: "the reference's vermilion — do not ship" },
+];
+
+/* Every pairing is exactly two faces and none of them has an italic. Three
+   families is what made the old set read muddled: a single work row ran
+   grotesque, then mono, then mono again. */
+const FONTSETS = [
+  { n: "grotesque + serif",
+    display: '"Archivo", sans-serif', prose: '"Newsreader", Georgia, serif', meta: '"Archivo", sans-serif',
+    note: "Archivo everywhere structural, Newsreader for prose only — the serif is the blog signal" },
+  { n: "grotesque + mono",
+    display: '"Archivo", sans-serif', prose: '"Archivo", sans-serif', meta: '"IBM Plex Mono", monospace',
+    note: "no serif; prose in the grotesque, mono on dates only — the closest to the reference's character without its faces" },
+  { n: "serif-led",
+    display: '"Newsreader", Georgia, serif', prose: '"Newsreader", Georgia, serif', meta: '"Archivo", sans-serif',
+    note: "name and prose both Newsreader roman, Archivo for the furniture — editorial" },
+  { n: "reference's",
+    display: '"Inter", sans-serif', prose: '"Inter", sans-serif', meta: '"JetBrains Mono", monospace',
+    note: "Inter is on every overused-font list there is, and this is the reference's exact pairing" },
+];
+
+const FIGMODES = [
+  { n: "plain",           v: "plain"  },
+  { n: "accent colour",   v: "colour" },
+  { n: "colour + bigger", v: "loud", note: "the proposal Andrey called cheap — kept so the comparison can be closed" },
+];
+
+function srgb(c){c/=255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4);}
+function lum(hex){const n=parseInt(hex.slice(1),16);return 0.2126*srgb((n>>16)&255)+0.7152*srgb((n>>8)&255)+0.0722*srgb(n&255);}
+function contrast(a,b){const x=lum(a),y=lum(b);return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05);}
+function rgb(hex){const n=parseInt(hex.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255];}
+function hex(r,g,b){return "#"+[r,g,b].map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,"0")).join("");}
+
+/* Walk the accent toward black (on light paper) or white (on dark paper) until
+   it clears 4.5:1. Returns the original when it already passes. */
+function fit(accent, paper) {
+  if (contrast(accent, paper) >= 4.5) return { c: accent, adjusted: false };
+  const toward = lum(paper) > 0.5 ? [0,0,0] : [255,255,255];
+  let [r,g,b] = rgb(accent);
+  for (let t = 0.05; t <= 1.001; t += 0.05) {
+    const c = hex(r+(toward[0]-r)*t, g+(toward[1]-g)*t, b+(toward[2]-b)*t);
+    if (contrast(c, paper) >= 4.5) return { c, adjusted: true };
+  }
+  return { c: hex(...toward), adjusted: true };
+}
+
+const SWATCHES = ACCENTS.filter(a => !a.gap);
+
+/* Stored indices survive edits to these lists, so clamp — an out-of-range
+   accent index used to take the whole page down with it. */
+const pick = (key, len) => {
+  const n = Number(localStorage.getItem(key));
+  return Number.isInteger(n) && n >= 0 && n < len ? n : 0;
+};
+
+let gi = pick("figmode", FIGMODES.length);
+let pi = pick("paper", PAPERS.length);
+let ai = pick("accent", SWATCHES.length);
+let fi = pick("fontset", FONTSETS.length);
+let dark = localStorage.getItem("theme") === "dark";
+
+function apply() {
+  const set = dark ? PAPERS[pi].d : PAPERS[pi].l;
+  const root = document.documentElement.style;
+  root.setProperty("--paper", set[0]);
+  root.setProperty("--ink",   set[1]);
+  root.setProperty("--muted", set[2]);
+  root.setProperty("--rule",  set[3]);
+
+  const raw = SWATCHES[ai].c;
+  const f = fit(raw, set[0]);
+  root.setProperty("--accent", f.c);
+
+  const fs = FONTSETS[fi];
+  root.setProperty("--display", fs.display);
+  root.setProperty("--prose", fs.prose);
+  root.setProperty("--meta", fs.meta);
+
+  document.documentElement.dataset.fig = FIGMODES[gi].v;
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+
+  document.getElementById("themebtn").textContent = dark ? "light" : "dark";
+  document.getElementById("pname").textContent =
+    PAPERS[pi].n + " · " + SWATCHES[ai].n + " · " + fs.n + " type · figures " + FIGMODES[gi].n;
+
+  const c = contrast(f.c, set[0]);
+  const el = document.getElementById("pcontrast");
+  el.className = f.adjusted ? "warn" : "ok";
+  el.textContent = f.adjusted
+    ? raw + " darkened to " + f.c + " to reach " + c.toFixed(2) + ":1"
+    : "accent " + c.toFixed(2) + ":1 as authored";
+
+  const notes = [SWATCHES[ai].stop, SWATCHES[ai].note, fs.note, FIGMODES[gi].note].filter(Boolean);
+  const nn = document.getElementById("pnote");
+  nn.className = SWATCHES[ai].stop ? "stop" : "warn";
+  nn.textContent = notes.join(" · ");
+
+  document.querySelectorAll("#papers .sw").forEach((b,i)=>{
+    b.setAttribute("aria-pressed", String(i===pi));
+    const s = dark ? PAPERS[i].d : PAPERS[i].l;
+    b.style.background = s[0];
+    b.firstElementChild.style.background = "transparent";
+  });
+  document.querySelectorAll("#accents .sw").forEach((b,i)=>{
+    b.setAttribute("aria-pressed", String(i===ai));
+    b.style.background = set[0];
+    b.firstElementChild.style.background = fit(SWATCHES[i].c, set[0]).c;
+  });
+  document.querySelectorAll("#fonts .pill").forEach((b,i)=>{
+    b.setAttribute("aria-pressed", String(i===fi));
+  });
+  document.querySelectorAll("#figs .pill").forEach((b,i)=>{
+    b.setAttribute("aria-pressed", String(i===gi));
+  });
+
+  localStorage.setItem("figmode", gi);
+  localStorage.setItem("paper", pi);
+  localStorage.setItem("accent", ai);
+  localStorage.setItem("fontset", fi);
+  localStorage.setItem("theme", dark ? "dark" : "light");
+}
+
+function swatch(host, list, onPick) {
+  let i = 0;
+  list.forEach((item) => {
+    if (item.gap) { const g = document.createElement("span"); g.className = "gap"; host.appendChild(g); return; }
+    const idx = i++;
+    const b = document.createElement("button");
+    b.className = "sw";
+    b.type = "button";
+    b.title = item.n + (item.stop ? " — " + item.stop : "");
+    b.setAttribute("aria-label", item.n);
+    b.appendChild(document.createElement("span"));
+    b.addEventListener("click", () => { onPick(idx); apply(); });
+    host.appendChild(b);
+  });
+}
+
+swatch(document.getElementById("papers"),  PAPERS,  i => pi = i);
+swatch(document.getElementById("accents"), ACCENTS, i => ai = i);
+
+function pills(host, list, onPick) {
+  list.forEach((item, i) => {
+    const b = document.createElement("button");
+    b.className = "pill";
+    b.type = "button";
+    b.textContent = item.n;
+    b.addEventListener("click", () => { onPick(i); apply(); });
+    host.appendChild(b);
+  });
+}
+pills(document.getElementById("fonts"), FONTSETS, i => fi = i);
+pills(document.getElementById("figs"),  FIGMODES, i => gi = i);
+
+document.getElementById("themebtn").addEventListener("click", () => { dark = !dark; apply(); });
+
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest("input, textarea")) return;
+  if (e.key === "ArrowRight") { ai = (ai + 1) % SWATCHES.length; apply(); }
+  if (e.key === "ArrowLeft")  { ai = (ai - 1 + SWATCHES.length) % SWATCHES.length; apply(); }
+});
+
+apply();
+</script>
+</body>
+</html>
