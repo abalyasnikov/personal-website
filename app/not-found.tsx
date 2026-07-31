@@ -18,7 +18,6 @@ export default function NotFound() {
 
       <section className="post-empty" aria-labelledby="not-found-title">
         <p>404</p>
-        {/* Placeholder copy: mirrors the post not-found wording, pending approval. */}
         <h1 id="not-found-title">This page does not exist.</h1>
         <Link href="/">← back home</Link>
       </section>

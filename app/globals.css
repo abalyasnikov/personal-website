@@ -70,7 +70,7 @@
   .article-nav a { min-height: var(--hit-target); display: inline-flex; flex: 0 0 auto; align-items: center; font-size: var(--text-small); text-decoration: none; }
   .article-nav span { min-width: 0; overflow: hidden; color: var(--muted); font-size: var(--text-tiny); text-overflow: ellipsis; white-space: nowrap; }
 
-  .reference-hero { margin: 0; padding: var(--s7) 0 1.875rem; }
+  .reference-hero { margin: 0; padding: var(--s7) 0 var(--rule-space-above); }
   .identity { margin-bottom: var(--s5); display: flex; align-items: flex-start; gap: var(--s5); }
   .identity img {
     width: 7rem;
@@ -84,7 +84,7 @@
   }
 
   .reference-section {
-    padding: var(--s8) 0;
+    padding: var(--rule-space-below) 0 var(--rule-space-above);
     border-top: 1px solid var(--rule);
     border-color: color-mix(in srgb, var(--rule) 70%, transparent);
     scroll-margin-top: 5.5rem;
@@ -237,7 +237,7 @@
   .contact-links { margin-top: var(--s6); display: flex; flex-wrap: wrap; gap: var(--s3) var(--s5); font-size: var(--text-content); }
 
   .reference-footer {
-    padding: var(--s6) 0;
+    padding: var(--rule-space-below) 0 var(--s6);
     display: flex;
     justify-content: space-between;
     gap: var(--s4);
@@ -302,7 +302,7 @@
     .topline { height: 3.5rem; gap: var(--s3); }
     .header-nav { --nav-gap: var(--s4); }
     .reference-section { scroll-margin-top: 4.5rem; }
-    .reference-hero { padding: var(--s6) 0 var(--s5); }
+    .reference-hero { padding-top: var(--s6); }
     .identity { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
     .identity img { width: 6.25rem; height: 6.25rem; flex-basis: 6.25rem; }
     .identity h1 { font-size: var(--text-title-compact); line-height: 2.34375rem; letter-spacing: -0.025em; white-space: nowrap; }
@@ -310,7 +310,6 @@
     .terminal { width: 100%; min-height: 0; }
     .terminal-body { min-height: 0; padding: var(--s3); font-size: var(--text-small); line-height: 1rem; }
     .eval-row { min-height: 1rem; grid-template-columns: 5.25rem minmax(0, 1fr); column-gap: var(--s2); }
-    .reference-section { padding: var(--s7) 0; }
     .post { padding-top: var(--s7); }
     .post-header { padding-bottom: var(--s7); }
     .post-header h1 { line-height: 1.12; }

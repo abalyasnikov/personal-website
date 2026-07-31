@@ -8,6 +8,8 @@ const siteUrl = "https://balyasnikov.com";
 const siteTitle = "Andrey Balyasnikov — Product Lead";
 const siteDescription =
   "Product lead building consumer products and developer platforms across fintech and crypto.";
+// The share card carries its own line, so the image and the card text match.
+const cardDescription = "Building consumer products and developer platforms in fintech and crypto.";
 
 const themeScript = `(function () {
   try {
@@ -46,14 +48,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     siteName: "Andrey Balyasnikov",
     title: siteTitle,
-    description: siteDescription,
+    description: cardDescription,
     url: "/",
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "Andrey Balyasnikov — product lead" }],
   },
   twitter: {
     card: "summary_large_image",
     title: siteTitle,
-    description: siteDescription,
+    description: cardDescription,
     images: [{ url: "/og.png", alt: "Andrey Balyasnikov — product lead" }],
   },
 };

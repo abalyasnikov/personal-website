@@ -38,6 +38,11 @@
   --s8: 4rem;
   --s9: 6rem;
 
+  /* Section rhythm. A section rule belongs to the section it opens, so it sits
+     closer to that section than to the one it closes. */
+  --rule-space-above: 4.5rem;
+  --rule-space-below: 2.5rem;
+
   --page-width: 41rem;
   --page-gutter: clamp(1.25rem, 5vw, 2rem);
   --radius-sm: 0.25rem;
@@ -57,6 +62,14 @@
   --terminal-green: #4f7629;
   --accent: #2b61ff;
   --runner-blue: #2b61ff;
+}
+
+/* The same proportion, tightened for narrow viewports. */
+@media (max-width: 42rem) {
+  :root {
+    --rule-space-above: 3.5rem;
+    --rule-space-below: 2rem;
+  }
 }
 
 :root[data-theme="dark"] {

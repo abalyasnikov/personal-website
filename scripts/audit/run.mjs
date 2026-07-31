@@ -2,7 +2,7 @@
 // Regression suite for the 2026-07-31 audit. Expects a server that is already
 // running; never starts one. Exits 0 when every check passes, 1 otherwise.
 import { chromium } from "playwright";
-import { AUDIT_URL, HIT_TARGET_PX, THEMES, WIDTHS } from "./constants.mjs";
+import { AUDIT_URL, TARGET_MIN_AA, TARGET_MIN_AAA, THEMES, WIDTHS } from "./constants.mjs";
 import { discoverRoutes, requireServer } from "./lib.mjs";
 import { run as contrast } from "./contrast.mjs";
 import { run as measure } from "./measure.mjs";
@@ -19,7 +19,7 @@ try {
 }
 
 console.log(`audit ${AUDIT_URL}`);
-console.log(`widths ${WIDTHS.join("/")} · themes ${THEMES.join("/")} · hit target ${HIT_TARGET_PX}px\n`);
+console.log(`widths ${WIDTHS.join("/")} · themes ${THEMES.join("/")} · targets ${TARGET_MIN_AA}px AA enforced, ${TARGET_MIN_AAA}px AAA reported\n`);
 
 const browser = await chromium.launch();
 let failed = 0;

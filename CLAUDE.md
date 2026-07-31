@@ -65,10 +65,10 @@ out of date. If it conflicts with this project or looks stale, ask Andrey.
   placeholder. Do not replace it until Andrey supplies the factual sentence.
 - The three current writing files are public previews labelled `Draft`; none is
   published yet.
-- The copy on `app/not-found.tsx` is a placeholder that mirrors the post
-  not-found wording. It needs Andrey's approval before launch.
-- The OG image `public/og.png` is a first pass built from the parameters in the
-  audit spec. Its composition needs Andrey's sign-off.
+- `public/og.png` is generated, not hand-edited. Its copy is a separate approved
+  line from the hero, and the description wraps to three lines at the agreed
+  34px. Fitting two lines needs a 673px text column or a 32px size — both are
+  open questions, not defects.
 
 ## Writing contract
 

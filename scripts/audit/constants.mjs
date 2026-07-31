@@ -19,8 +19,19 @@ export const LARGE_TEXT_PX = 24;
 export const LARGE_BOLD_PX = 18.66;
 export const LARGE_BOLD_WEIGHT = 700;
 
-/** Minimum hit area for an interactive element, measured by elementFromPoint probes. */
-export const HIT_TARGET_PX = 44;
+/**
+ * WCAG 2.2 SC 2.5.8 Target Size (Minimum), Level AA — enforced.
+ * A target passes at 24x24 CSS px, or by spacing: a 24px-diameter circle
+ * centred on its bounding box must not intersect another target or another
+ * undersized target's circle.
+ */
+export const TARGET_MIN_AA = 24;
+
+/**
+ * SC 2.5.5 Target Size (Enhanced), Level AAA, and the Apple HIG figure —
+ * reported, never enforced. Falling short of it is not a standards failure.
+ */
+export const TARGET_MIN_AAA = 44;
 
 /** Allowed horizontal overflow of the document, in CSS pixels. */
 export const OVERFLOW_TOLERANCE_PX = 0;
@@ -32,9 +43,8 @@ export const SHOT_DIFF_TOLERANCE_PX = 0;
 export const SHOT_CHANNEL_TOLERANCE = 0;
 
 /**
- * Excluded from the hit-target check: links that sit inside running text rather
- * than standing alone as controls. Growing them to 44px would push an invisible
- * zone over the copy around them.
+ * Excluded from the target checks: links that sit inside running text rather
+ * than standing alone as controls. SC 2.5.8 exempts these under "inline".
  */
 export const HIT_TARGET_EXEMPT = [
   ".markdown-content p a",

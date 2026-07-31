@@ -1,19 +1,45 @@
-// Geometry checks: hit areas, horizontal overflow, tab order, shared left edges.
-import { HIT_TARGET_EXEMPT, HIT_TARGET_PX, OVERFLOW_TOLERANCE_PX, THEMES, WIDTHS } from "./constants.mjs";
+// Geometry checks: target size, horizontal overflow, shared left edges.
+import {
+  HIT_TARGET_EXEMPT,
+  OVERFLOW_TOLERANCE_PX,
+  TARGET_MIN_AA,
+  TARGET_MIN_AAA,
+  THEMES,
+  WIDTHS,
+} from "./constants.mjs";
 import { openPage } from "./lib.mjs";
 
 const INTERACTIVE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
 const EDGE_SELECTORS = [".post-status", ".post-header h1", ".post-dek", ".post-body", ".markdown-content h2", ".post-footer"];
 
-const probeHitAreas = ({ selector, exempt, size }) => {
-  // A zone exactly `size` wide spans [centre - size/2, centre + size/2), so the
-  // probe stops a hair short of the edge: 44px passes, 43px still fails.
-  const reach = size / 2 - 0.1;
+const collectTargets = ({ selector, exempt, aa, aaa }) => {
   const label = (element) => {
     const cls = typeof element.className === "string" && element.className
       ? `.${element.className.trim().split(/\s+/).join(".")}`
       : "";
     return `${element.tagName.toLowerCase()}${cls}:${(element.textContent || "").trim().slice(0, 20)}`;
+  };
+
+  /* A scrolling ancestor clips what the user can actually reach. The header
+     navigation scrolls horizontally, so its far items keep their unclipped
+     geometry in getBoundingClientRect and appear to sit under the theme
+     control. Intersecting with every clipping ancestor removes those phantoms
+     and drops anything currently scrolled out of view. */
+  const visibleRect = (element) => {
+    let rect = element.getBoundingClientRect();
+    let box = { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom };
+    for (let node = element.parentElement; node; node = node.parentElement) {
+      const style = getComputedStyle(node);
+      if (style.overflowX === "visible" && style.overflowY === "visible") continue;
+      const clip = node.getBoundingClientRect();
+      box = {
+        left: Math.max(box.left, clip.left),
+        top: Math.max(box.top, clip.top),
+        right: Math.min(box.right, clip.right),
+        bottom: Math.min(box.bottom, clip.bottom),
+      };
+    }
+    return box;
   };
 
   const controls = [...document.querySelectorAll(selector)].filter((element) => {
@@ -24,35 +50,81 @@ const probeHitAreas = ({ selector, exempt, size }) => {
     return rect.width > 0 && rect.height > 0;
   });
 
-  const results = [];
-  for (const element of controls) {
-    element.scrollIntoView({ block: "center", inline: "center", behavior: "instant" });
-    const rect = element.getBoundingClientRect();
-    const cx = (rect.left + rect.right) / 2;
-    const cy = (rect.top + rect.bottom) / 2;
-    const probes = [
-      ["left", cx - reach, cy],
-      ["right", cx + reach, cy],
-      ["up", cx, cy - reach],
-      ["down", cx, cy + reach],
-    ];
+  const targets = controls
+    .map((element) => {
+      const rect = visibleRect(element);
+      const width = rect.right - rect.left;
+      const height = rect.bottom - rect.top;
+      return {
+        name: label(element),
+        rect,
+        cx: (rect.left + rect.right) / 2,
+        cy: (rect.top + rect.bottom) / 2,
+        width,
+        height,
+        undersized: width < aa || height < aa,
+      };
+    })
+    .filter((target) => target.width > 0 && target.height > 0);
 
-    for (const [name, x, y] of probes) {
-      if (x < 0 || y < 0 || x > innerWidth - 1 || y > innerHeight - 1) {
-        results.push({ control: label(element), probe: name, outcome: "outside viewport" });
+  /* SC 2.5.8 Target Size (Minimum), Level AA.
+     24x24 passes outright. An undersized target passes on spacing when the
+     24px-diameter circle centred on its bounding box intersects neither
+     another target's box nor another undersized target's circle. Tangency is
+     allowed, so only a strict overlap counts. */
+  const radius = aa / 2;
+  const epsilon = 0.01;
+  const distanceToRect = (x, y, r) => {
+    const dx = Math.max(r.left - x, 0, x - r.right);
+    const dy = Math.max(r.top - y, 0, y - r.bottom);
+    return Math.hypot(dx, dy);
+  };
+
+  const aaFailures = [];
+  for (const target of targets) {
+    if (!target.undersized) continue;
+    const clashes = [];
+    for (const other of targets) {
+      if (other === target) continue;
+      if (distanceToRect(target.cx, target.cy, other.rect) < radius - epsilon) {
+        clashes.push(`box of ${other.name}`);
         continue;
       }
-      const hit = document.elementFromPoint(x, y);
-      if (hit && (hit === element || element.contains(hit))) continue;
-      const other = hit && hit.closest(selector);
-      results.push({
-        control: label(element),
-        probe: name,
-        outcome: other && other !== element ? `overlaps ${label(other)}` : "misses target",
+      if (other.undersized && Math.hypot(target.cx - other.cx, target.cy - other.cy) < aa - epsilon) {
+        clashes.push(`circle of ${other.name}`);
+      }
+    }
+    if (clashes.length) {
+      aaFailures.push({
+        name: target.name,
+        size: `${Math.round(target.width)}x${Math.round(target.height)}`,
+        clashes: [...new Set(clashes)].slice(0, 3),
       });
     }
   }
-  return { count: controls.length, misses: results };
+
+  /* SC 2.5.5 Target Size (Enhanced), Level AAA — reported, never enforced. */
+  const aaaShort = targets
+    .filter((target) => target.width < aaa || target.height < aaa)
+    .map((target) => ({ name: target.name, size: `${Math.round(target.width)}x${Math.round(target.height)}` }));
+
+  /* Tightest centre-to-centre distance among pairs where at least one target is
+     undersized — the only pairs SC 2.5.8 turns on. Two full-size targets may sit
+     as close as they like. */
+  let closest = Infinity;
+  for (let i = 0; i < targets.length; i += 1) {
+    for (let j = i + 1; j < targets.length; j += 1) {
+      if (!targets[i].undersized && !targets[j].undersized) continue;
+      closest = Math.min(closest, Math.hypot(targets[i].cx - targets[j].cx, targets[i].cy - targets[j].cy));
+    }
+  }
+
+  return {
+    count: targets.length,
+    aaFailures,
+    aaaShort,
+    closest: Number.isFinite(closest) ? Math.round(closest) : null,
+  };
 };
 
 const measureOverflow = () => {
@@ -83,6 +155,8 @@ const readEdges = (selectors) =>
 export async function run(browser, routes) {
   const failures = [];
   const lines = [];
+  const aaaShort = new Map();
+  let closest = Infinity;
 
   for (const route of routes) {
     for (const theme of THEMES) {
@@ -94,20 +168,35 @@ export async function run(browser, routes) {
           failures.push(`${route.path} ${theme} ${width}px  horizontal overflow ${overflow.documentOverflow}px — ${overflow.offenders.join(", ")}`);
         }
 
-        const hit = await page.evaluate(probeHitAreas, {
+        const targets = await page.evaluate(collectTargets, {
           selector: INTERACTIVE,
           exempt: HIT_TARGET_EXEMPT,
-          size: HIT_TARGET_PX,
+          aa: TARGET_MIN_AA,
+          aaa: TARGET_MIN_AAA,
         });
-        for (const miss of hit.misses) {
-          failures.push(`${route.path} ${theme} ${width}px  hit area <${HIT_TARGET_PX}px — ${miss.control} probe ${miss.probe}: ${miss.outcome}`);
+        for (const failure of targets.aaFailures) {
+          failures.push(`${route.path} ${theme} ${width}px  ${failure.size} target fails SC 2.5.8 — ${failure.name} clashes with ${failure.clashes.join(", ")}`);
         }
+        for (const short of targets.aaaShort) {
+          aaaShort.set(`${short.name} — ${short.size}`, (aaaShort.get(`${short.name} — ${short.size}`) ?? 0) + 1);
+        }
+        if (targets.closest !== null) closest = Math.min(closest, targets.closest);
         if (theme === THEMES[0] && width === WIDTHS.at(-1)) {
-          lines.push(`${route.path}: ${hit.count} interactive elements probed`);
+          lines.push(`${route.path}: ${targets.count} targets measured`);
         }
 
         await context.close();
       }
+    }
+  }
+
+  lines.push(`SC 2.5.8 (AA, ${TARGET_MIN_AA}px or spacing): pass — tightest pair involving an undersized target is ${closest}px centre to centre`);
+  if (aaaShort.size === 0) {
+    lines.push(`SC 2.5.5 (AAA, ${TARGET_MIN_AAA}px): every target clears it`);
+  } else {
+    lines.push(`SC 2.5.5 (AAA, ${TARGET_MIN_AAA}px): ${aaaShort.size} target(s) below it — reported, not enforced`);
+    for (const [key, count] of [...aaaShort.entries()].sort()) {
+      lines.push(`   ${key} (${count} viewport/theme combinations)`);
     }
   }
 

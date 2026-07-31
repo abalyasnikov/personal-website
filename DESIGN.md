@@ -72,7 +72,8 @@ The old editorial exploration remains unchanged in `demo/index.html`; its matchi
 8. The header contains only unnumbered horizontal section navigation and the theme control. It is sticky, single-line, and horizontally scrollable on narrow screens.
 9. Rules separate structural regions only: sticky header, major sections, terminal chrome, and footer. Repeated content rows rely on spacing instead of dividers.
 10. Section navigation and card-shaped rows carry no underline. Their click affordance is the block target itself, plus the accent arrow on writing rows. Underlines stay on links that sit inside running text, where nothing else marks them.
-11. Standalone controls carry a 44px pointer target in a pseudo-element, so the target grows without moving or resizing anything on screen. Where neighbouring controls sit closer than 44px apart, their zones split the gap instead of overlapping.
+11. Standalone controls carry a 44px pointer target in a pseudo-element, so the target grows without moving or resizing anything on screen. Where neighbouring controls sit closer than 44px apart, their zones split the gap instead of overlapping; the binding requirement is SC 2.5.8 at 24px, which spacing satisfies.
+12. A section rule belongs to the section it opens. Space above it is larger than space below it, and the two values are the same for every rule on the page.
 
 ## Color and themes
 
@@ -103,7 +104,9 @@ Site body remains 16px and compact section copy is 14px, matching the reference.
 
 ## Layout rhythm
 
-The 4px scale is strict. Normal gaps use 12–24px; major section separation uses 64–96px. Each numbered section starts with a rule, then 64px of internal space on desktop and 48px on mobile.
+The 4px scale is strict. Normal gaps use 12–24px.
+
+Section separation is deliberately asymmetric: **72px above a rule, 40px below it** on desktop, **56/32** below 672px. The rule belongs to the section it opens, not to the gap between two sections, so it sits closer to the heading that follows than to the block it closes. `--rule-space-above` and `--rule-space-below` carry both values, and every rule on the page obeys them — including the two that are not numbered-section boundaries, the hero's edge with section 01 and the footer's top border.
 
 Rows share one structure: title/meta first, description second, and spacing between entries. They do not draw their own rules. Below 672px they stack into one column.
 
@@ -118,7 +121,8 @@ Writing source files live in `content/writing/*.md`. The filename defines the ro
 ## Responsive and accessibility
 
 - Minimum supported viewport: 320px; no horizontal overflow.
-- Controls preserve a practical 44px target where they stand alone, delivered by a pseudo-element so nothing shifts visually. Two places cannot reach 44px inside the current spacing and are knowingly short: header navigation items narrower than the gap allows, and the email/résumé pair, which sits 12px apart.
+- Every target meets WCAG 2.2 SC 2.5.8 (AA): 24×24, or the spacing exception. That is what `npm run audit` enforces.
+- Standalone controls also aim for a 44px target, delivered by a pseudo-element so nothing shifts visually. Header navigation items and the email/résumé pair fall short of 44px because their neighbours sit closer than that; both still clear AA on spacing. 44px is SC 2.5.5, Level AAA, so this is reported and not treated as a failure.
 - Below 400px the eval runner stacks its key over its value, because no key column leaves all seven descriptions on one line.
 - Every rendered text node clears WCAG AA in both themes: 4.5:1 normal, 3:1 large. `npm run audit` measures this with real alpha compositing.
 - Color is never the sole focus indicator.
@@ -157,3 +161,6 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 | 2026-07-31 | Remove the article `margin: 0 auto` | Centering the 608px measure inside the 656px shell broke rule 1 by 24px |
 | 2026-07-31 | Stop dimming the writing arrow | It is the only non-colour signal that the row is a link |
 | 2026-07-31 | Resolve the theme in an inline head script | The stored theme was applied after hydration, so a dark visitor got a light first frame |
+| 2026-07-31 | Make section separation asymmetric, 72 above a rule and 40 below | A rule centred in its own whitespace divides two sections equally and belongs to neither; moving it toward the heading it introduces makes it read as that section's opening |
+| 2026-07-31 | Apply the same pair to the hero edge and the footer border | They are rules too. Leaving them on the old symmetric spacing would have made two of the seven boundaries read differently |
+| 2026-07-31 | Enforce SC 2.5.8 (24px, AA) and report 44px as AAA | 44px is Level AAA and the Apple guideline, not the standard the site is held to; the audit was failing builds over an enhancement |
