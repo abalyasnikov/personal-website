@@ -34,7 +34,7 @@ out of date. If it conflicts with this project or looks stale, ask Andrey.
 | `app/layout.tsx` | Global metadata, language, font loading, and root document |
 | `app/page.tsx` | Home-page composition and section order |
 | `app/writing/[slug]/` | Static post route and post-specific not-found state |
-| `components/SiteChrome.tsx` | Theme and accent exploration controls |
+| `components/SiteChrome.tsx` | Theme control |
 | `components/ArticleChrome.tsx` | Shared sticky chrome for article pages |
 | `components/MarkdownArticle.tsx` | Design-system renderer for Markdown elements |
 | `content/site.tsx` | Work, building, and investing content |
@@ -64,8 +64,12 @@ out of date. If it conflicts with this project or looks stale, ask Andrey.
   placeholder. Do not replace it until Andrey supplies the factual sentence.
 - The three current writing files are public previews labelled `Draft`; none is
   published yet.
-- The accent picker and its three hero treatments remain intentionally live
-  until Andrey chooses the final identity direction.
+- The copy on `app/not-found.tsx` is a placeholder that mirrors the post
+  not-found wording. It needs Andrey's approval before launch.
+- The OG image `public/og.png` is a first pass built from the parameters in the
+  audit spec. Its composition needs Andrey's sign-off.
+- Caveat is still installed and `--font-accent` still exists, but nothing uses
+  them since the hero treatment was removed. Removing both is a follow-up.
 
 ## Writing contract
 
@@ -109,9 +113,13 @@ Post copy.
   `--accent`; do not place raw palette values in components.
 - A new color, type size, spacing value, radius, or motion rule is a design-system
   change. Update `DESIGN.md` and `styles/tokens.css` together.
-- Light is the default theme and signal blue is the default accent. Dark mode and
-  every accent option must remain intentional, not merely functional.
-- Keep the accent picker until Andrey locks the identity direction.
+- The theme follows the operating system on a first visit and is resolved by the
+  inline script in `app/layout.tsx` before the first frame. A manual choice wins
+  and persists. Dark mode must stay composed, not a mechanical inversion.
+- Signal blue is the locked identity accent and carries two values, `#2b61ff` in
+  light and `#5b81f1` in dark. There is no accent picker; do not reintroduce one.
+- Type sizes come from the six-step scale in `DESIGN.md`. Do not add a size, and
+  do not write a literal `font-size` in `app/globals.css`.
 - Text links inherit their surrounding hierarchy at rest, switch to `--accent`
   on hover, and use the accent focus ring for keyboard navigation. Do not make email or résumé links permanently
   blue; persistent accent is reserved for semantic signals such as roles,
@@ -138,8 +146,10 @@ directory is not mutated concurrently.
 
 - `npm run build` passes and every Markdown post is listed as an SSG route.
 - The active site has zero console errors and no failed local requests.
+- `npm run lint` exits 0 and `npm run audit` reports no violations against a dev
+  server on `3001`.
 - Check 320/375px, 768px, and 1440px with no horizontal overflow.
-- Check light and dark themes plus all accent options affected by the change.
+- Check light and dark themes.
 - Verify home → post → `back to writing`, plus `back to top`.
 - New standalone controls have practical 44px targets and visible focus.
 - Read changed copy aloud. If it sounds like a LinkedIn post, rewrite it.

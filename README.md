@@ -11,25 +11,32 @@ npm run dev -- -p 3001
 
 Open `http://localhost:3001`. Run `npm run build` for the production static-export check.
 
+`npm run lint` runs the ESLint CLI against `eslint.config.mjs`. `npm run audit`
+runs the accessibility and layout regression suite in `scripts/audit/` against an
+already-running server; it never starts one. Point it elsewhere with `AUDIT_URL`,
+and set `AUDIT_BASELINE` to a directory of reference screenshots to get a pixel
+diff.
+
 ## Structure
 
 | Path | Purpose |
 |---|---|
 | `app/` | Page, metadata, and global styles |
-| `components/SiteChrome.tsx` | Theme and accent exploration controls |
+| `components/SiteChrome.tsx` | Theme control |
 | `components/ArticleChrome.tsx` | Sticky navigation shared by article pages |
 | `components/MarkdownArticle.tsx` | Shared design-system renderer for post content |
 | `content/site.tsx` | Structured site content |
 | `content/writing/*.md` | Blog posts and their metadata |
 | `lib/posts.ts` | Markdown discovery, validation, and sorting |
 | `styles/tokens.css` | Runtime design tokens |
+| `scripts/audit/` | Contrast, layout, behaviour and screenshot regression checks |
 | [`DESIGN.md`](DESIGN.md) | Current design system and decisions |
 | [`CLAUDE.md`](CLAUDE.md) | Current instructions and guardrails for coding agents |
 | [`SPEC.md`](SPEC.md) | Historical brief and decision context; not current implementation authority |
 | `demo/index.html` | Preserved previous standalone version |
 | [`demo/DESIGN.md`](demo/DESIGN.md) | Design system that belonged to the previous version |
 
-The bottom picker changes accent color and the hero accent treatment. Choices persist in `localStorage`. Dark/light theme is independent.
+The theme follows the operating system on a first visit; the header control overrides it and the choice persists in `localStorage`.
 
 ## Write a post
 

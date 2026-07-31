@@ -2,7 +2,8 @@
 name: balyasnikov.com-reference-baseline
 description: A close, tokenized baseline of martin-slaney.com for controlled iteration.
 colors:
-  default-accent: "#4F7CFF"
+  accent-light: "#2B61FF"
+  accent-dark: "#5B81F1"
   canvas-dark: "#191919"
   surface-dark: "#202020"
   ink-dark: "#E9E7E2"
@@ -11,21 +12,18 @@ colors:
   canvas-light: "#FAF9F6"
   surface-light: "#F7F5F1"
   ink-light: "#171717"
-  muted-light: "#737373"
+  muted-light: "#6B6B6B"
   rule-light: "#E7E2DA"
   terminal-green-light: "#4F7629"
   terminal-green-dark: "#95C85A"
-  accent-vermilion: "#FF4D2E"
-  accent-blue: "#4F7CFF"
-  runner-blue: "#4F7CFF"
-  accent-acid: "#C8FF38"
-  accent-pine: "#45B36B"
-  accent-pink: "#FF5C93"
+  runner-blue-light: "#2B61FF"
+  runner-blue-dark: "#5B81F1"
 typography:
   sans: "Inter Variable"
   mono: "JetBrains Mono Variable"
-  accent: "Caveat Variable"
   title: "clamp(36px, 6vw, 44px) / 40px"
+  title-compact: "30px / 37.5px"
+  lede: "18px / 1.6"
   body: "16px / 1.65"
   content: "14px / 1.625"
   small: "11px / 1.65"
@@ -43,6 +41,7 @@ spacing:
 layout:
   content: "656px"
   gutter: "clamp(20px, 5vw, 32px)"
+  hit-target: "44px"
 rounded:
   control: "4px"
   small-surface: "4px"
@@ -64,7 +63,7 @@ The old editorial exploration remains unchanged in `demo/index.html`; its matchi
 ## Rules
 
 1. One centered column, `656px` wide. All major content shares its edges.
-2. Inter carries headings and prose. JetBrains Mono is restricted to navigation, terminal, metadata, and controls. Caveat is used only for the `script` accent treatment.
+2. Inter carries headings and prose. JetBrains Mono is restricted to navigation, terminal, metadata, and controls. Caveat is still loaded but no longer used anywhere; it was the `script` hero treatment, removed on 2026-07-31.
 3. Hierarchy comes from spacing, weight, section rules, and numbering—not extra card surfaces.
 4. Every interactive hover and focus state uses `--accent`. Focus must remain visible.
 5. Investing uses the same stacked row primitive as building. No one-off grid or spacing model.
@@ -72,24 +71,35 @@ The old editorial exploration remains unchanged in `demo/index.html`; its matchi
 7. Placeholders stay visibly muted; copy is never silently invented to fill them.
 8. The header contains only unnumbered horizontal section navigation and the theme control. It is sticky, single-line, and horizontally scrollable on narrow screens.
 9. Rules separate structural regions only: sticky header, major sections, terminal chrome, and footer. Repeated content rows rely on spacing instead of dividers.
+10. Section navigation and card-shaped rows carry no underline. Their click affordance is the block target itself, plus the accent arrow on writing rows. Underlines stay on links that sit inside running text, where nothing else marks them.
+11. Standalone controls carry a 44px pointer target in a pseudo-element, so the target grows without moving or resizing anything on screen. Where neighbouring controls sit closer than 44px apart, their zones split the gap instead of overlapping.
 
 ## Color and themes
 
-Light is the default. Dark is a composed alternate, not a CSS inversion. `--canvas`, `--surface`, `--ink`, `--muted`, and `--rule` are semantic roles. Components never use raw palette values. Signal blue `#4F7CFF` is the default accent.
+The theme follows the operating system on a first visit and is resolved by an inline script in `<head>` before the first frame. A manual choice overrides it and persists in `localStorage`. Dark is a composed alternate, not a CSS inversion. `--canvas`, `--surface`, `--ink`, `--muted`, and `--rule` are semantic roles. Components never use raw palette values.
 
-The accent is a runtime identity axis. The picker may set vermilion, blue, acid, pine, or pink. It controls hover and focus states and active preview controls.
+Signal blue is the identity accent and is no longer user-selectable. It carries two values because no single tone at 225° clears 4.5:1 on both `#FAF9F6` and `#202020`: `#2B61FF` in light, `#5B81F1` in dark. `--runner-blue` stays a separate token with the same pair, so the execution state can diverge from the identity accent again without touching components.
 
-Text links inherit the color of their surrounding hierarchy at rest, move to `--accent` on hover, and use the accent focus ring for keyboard navigation. Email and résumé download follow the same interaction rule as the social links instead of appearing permanently active. Footer navigation remains muted at rest because it belongs to footer furniture. Persistent accent is reserved for semantic signals: the hero treatment, work roles, building metadata, post and error status, writing arrows, the selected preview state, and the runner sequence.
+Text links inherit the color of their surrounding hierarchy at rest, move to `--accent` on hover, and use the accent focus ring for keyboard navigation. Email and résumé download follow the same interaction rule as the social links instead of appearing permanently active. Footer navigation remains muted at rest because it belongs to footer furniture. Persistent accent is reserved for semantic signals: the hero role phrase, work roles, building metadata, post and error status, writing arrows, and the runner sequence.
 
 The eval runner uses fixed signal blue for execution state. Only the left-hand step label animates across a 28-second cycle: one second fading in, two seconds held, and one second fading out before the next step begins. The sequence is `frame → inspect → define → build → measure → learn → decide`. Descriptions and row backgrounds remain static. This stays independent from the identity accent.
 
-## Accent treatments
+## Type scale
 
-- `script` — editorial italic word, slightly rotated; closest to the reference.
-- `mono` — bracketed monospace word; more technical.
-- `underline` — neutral sans word with a thick accent underline; quieter.
+Six steps, each one distinguishable: **44 / 18 / 16 / 14 / 11 / 10**. Every one is a token in `styles/tokens.css`; `app/globals.css` sets no literal font size.
 
-The picker stays collapsed behind the small `style` control while the direction is being evaluated. Preferences persist locally. When a direction is chosen, the picker can be removed without changing component markup.
+| Token | Size | Used by |
+|---|---|---|
+| `--text-title` | clamp 36–44px | hero name, post title, error title |
+| `--text-lede` | 18px | post dek, article blockquote |
+| `--text-body` | 16px | article prose, hero identity line |
+| `--text-content` | 14px | section copy, terminal, contact links, code blocks |
+| `--text-small` | 11px | navigation, metadata, status labels, footer |
+| `--text-tiny` | 10px | section numbers, terminal chrome |
+
+The title is a clamp, not a step, so it scales with the viewport. `--text-title-compact` (30px) is part of the same axis: the hero name keeps a smaller size below 672px so it stays on one line.
+
+Site body remains 16px and compact section copy is 14px, matching the reference. The home page is compact copy; article pages use site body. That is the only place two content sizes coexist, and it is intentional.
 
 ## Layout rhythm
 
@@ -108,8 +118,9 @@ Writing source files live in `content/writing/*.md`. The filename defines the ro
 ## Responsive and accessibility
 
 - Minimum supported viewport: 320px; no horizontal overflow.
-- Controls preserve a practical 44px target where they stand alone.
-- Site body remains 16px; compact section copy is 14px, matching the reference.
+- Controls preserve a practical 44px target where they stand alone, delivered by a pseudo-element so nothing shifts visually. Two places cannot reach 44px inside the current spacing and are knowingly short: header navigation items narrower than the gap allows, and the email/résumé pair, which sits 12px apart.
+- Below 400px the eval runner stacks its key over its value, because no key column leaves all seven descriptions on one line.
+- Every rendered text node clears WCAG AA in both themes: 4.5:1 normal, 3:1 large. `npm run audit` measures this with real alpha compositing.
 - Color is never the sole focus indicator.
 - Portrait alt text identifies the subject.
 - Reduced-motion preferences stop the terminal status and eval-scan loops, then collapse transitions.
@@ -136,3 +147,13 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 | 2026-07-31 | Keep post authoring in plain Markdown | Let content stay portable while the shared renderer prevents per-post design drift |
 | 2026-07-31 | Unify text-link interaction states | Keep hierarchy neutral at rest and use the accent consistently for hover and focus |
 | 2026-07-31 | Treat drafts as public previews | Make status editorially visible without implying access control that the static export does not provide |
+| 2026-07-31 | Lock the identity accent to signal blue and delete the picker | The identity decision is made; a live picker on a job-search page is cost without benefit |
+| 2026-07-31 | Split the accent by theme: `#2B61FF` light, `#5B81F1` dark | No single tone at 225° clears 4.5:1 on both `#FAF9F6` and `#202020`; the terminal green already set this precedent |
+| 2026-07-31 | Move light `--muted` from `#737373` to `#6B6B6B` | `#737373` measured 4.35:1 on `--surface`, below AA for the terminal chrome and runner keys |
+| 2026-07-31 | Drop the Caveat hero treatment | The italic word was an exploration axis, not a decision; the role phrase reads as an accent on its own |
+| 2026-07-31 | Declare a six-step scale and delete 17/13/12px | Four sizes lived between 10 and 13px; a 1px difference is not a hierarchy, it is accumulation |
+| 2026-07-31 | Give standalone controls a 44px pseudo-element target | The pointer target grows without moving a single visible pixel |
+| 2026-07-31 | Keep navigation and writing rows underline-free | The block target and the accent arrow already mark them; underlines would add noise to a mono row |
+| 2026-07-31 | Remove the article `margin: 0 auto` | Centering the 608px measure inside the 656px shell broke rule 1 by 24px |
+| 2026-07-31 | Stop dimming the writing arrow | It is the only non-colour signal that the row is a link |
+| 2026-07-31 | Resolve the theme in an inline head script | The stored theme was applied after hydration, so a dark visitor got a light first frame |
