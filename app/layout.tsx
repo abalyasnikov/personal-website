@@ -23,12 +23,12 @@ const themeScript = `(function () {
   }
 })();`;
 
-// Marks a pending terminal replay before first paint, so the exported settled
-// markup never flashes ahead of the run. Skipped once the session has seen the
-// replay, and for visitors who prefer reduced motion.
+// Marks the pending terminal run before first paint, so the exported settled
+// markup never flashes ahead of it. The run happens on every pageview; only
+// visitors who prefer reduced motion land on the settled state directly.
 const evalScript = `(function () {
   try {
-    if (!sessionStorage.getItem('eval-ran') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.documentElement.classList.add('eval-replay');
     }
   } catch (e) {}

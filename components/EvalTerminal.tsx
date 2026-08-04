@@ -13,57 +13,39 @@ const steps = [
 ] as const;
 
 const command = "andrey run product_eval";
-const stepMs = 2000;
 const typeMs = 28;
 const typeDelayMs = 300;
 const streamMs = 110;
-const badgeDelayMs = 350;
-const traceDelayMs = 800;
-const sessionKey = "eval-ran";
+const doneDelayMs = 400;
 
 // The exported page carries the settled state, so the terminal reads complete
-// without JavaScript. The inline script in the layout marks a pending replay
-// before first paint; this component then performs it once per session and
-// hands off to the continuous trace.
-type Phase = "settled" | "typing" | "streaming" | "running";
+// without JavaScript. The inline script in the layout marks a pending run
+// before first paint; this component performs it once per pageview: the
+// command types out, the steps stream in, the run ends at `decide`, and the
+// status dot starts its pulse. Nothing loops.
+type Phase = "settled" | "typing" | "streaming" | "done";
 
 export function EvalTerminal() {
   const [phase, setPhase] = useState<Phase>("settled");
   const [typedCount, setTypedCount] = useState(command.length);
   const [streamedCount, setStreamedCount] = useState(0);
-  const [badgeOn, setBadgeOn] = useState(false);
-  const [current, setCurrent] = useState(0);
+  const [dotOn, setDotOn] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
     const local = timers.current;
-    let interval: ReturnType<typeof setInterval> | undefined;
     const later = (fn: () => void, ms: number) => {
       local.push(setTimeout(fn, ms));
     };
-    const startTrace = () => {
-      setPhase("running");
-      setBadgeOn(true);
+    const finish = () => {
+      setPhase("done");
+      setDotOn(true);
       document.documentElement.classList.remove("eval-replay");
-      interval = setInterval(() => setCurrent((value) => value + 1), stepMs);
     };
 
-    let ran = false;
-    try {
-      ran = sessionStorage.getItem(sessionKey) === "1";
-    } catch {
-      ran = true;
-    }
-
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      // Static frame: first step marked, no replay, no advancing loop.
       document.documentElement.classList.remove("eval-replay");
-      later(() => {
-        setPhase("running");
-        setBadgeOn(true);
-      }, 0);
-    } else if (ran) {
-      later(startTrace, 0);
+      later(finish, 0);
     } else {
       later(() => {
         setPhase("typing");
@@ -74,43 +56,30 @@ export function EvalTerminal() {
       }
       const typeDone = typeDelayMs + command.length * typeMs + 150;
       later(() => setPhase("streaming"), typeDone);
-      for (let i = 1; i <= steps.length + 1; i += 1) {
+      for (let i = 1; i <= steps.length; i += 1) {
         later(() => setStreamedCount(i), typeDone + i * streamMs);
       }
-      const streamDone = typeDone + (steps.length + 1) * streamMs;
-      later(() => setBadgeOn(true), streamDone + badgeDelayMs);
-      later(() => {
-        try {
-          sessionStorage.setItem(sessionKey, "1");
-        } catch {
-          /* the replay simply runs again next visit */
-        }
-        startTrace();
-      }, streamDone + traceDelayMs);
+      later(finish, typeDone + steps.length * streamMs + doneDelayMs);
     }
 
     return () => {
       local.forEach(clearTimeout);
       local.length = 0;
-      if (interval) clearInterval(interval);
     };
   }, []);
 
-  const running = phase === "running";
   const launching = phase === "typing" || phase === "streaming";
-  const activeStep = running ? current % steps.length : -1;
 
   return (
     <div
-      className={`terminal${running ? " is-live" : ""}${launching ? " is-launching" : ""}`}
+      className={`terminal${phase === "done" ? " is-live" : ""}${launching ? " is-launching" : ""}`}
       aria-label="Product evaluation workflow"
     >
       <div className="terminal-title">
         <span>andrey.run / product_eval</span>
-        <strong className={badgeOn ? "is-on" : undefined}>
-          <i aria-hidden="true" />
-          active
-        </strong>
+        <span className={`terminal-status${dotOn ? " is-on" : ""}`} aria-hidden="true">
+          <i />
+        </span>
       </div>
       <div className="terminal-body">
         <div className="eval-prompt">
@@ -119,41 +88,15 @@ export function EvalTerminal() {
           {launching ? <span className="eval-cursor" aria-hidden="true" /> : null}
         </div>
         <dl className="eval-list">
-          {steps.map(([label, description], index) => {
-            const isCurrent = index === activeStep;
-            const isDone = running && index < activeStep;
-            const rowClass = [
-              "eval-row",
-              label === "learn" ? "eval-loop" : "",
-              index < streamedCount ? "is-in" : "",
-              isCurrent ? "is-current" : "",
-            ]
-              .filter(Boolean)
-              .join(" ");
-            return (
-              <div className={rowClass} key={label} aria-current={isCurrent ? "step" : undefined}>
-                <dt>
-                  <span className="eval-glyph" aria-hidden="true">
-                    {isDone ? "✓ " : "  "}
-                  </span>
-                  {label}
-                </dt>
-                <dd>
-                  {description}
-                  {isCurrent ? <span className="eval-cursor" aria-hidden="true" /> : null}
-                </dd>
-              </div>
-            );
-          })}
-          <div className={`eval-row eval-loop-row${streamedCount > steps.length ? " is-in" : ""}`}>
-            <dt>
-              <span className="eval-glyph" aria-hidden="true">
-                {"  "}
-              </span>
-              ↺
-            </dt>
-            <dd>back to frame</dd>
-          </div>
+          {steps.map(([label, description], index) => (
+            <div
+              className={`eval-row${label === "learn" ? " eval-loop" : ""}${index < streamedCount ? " is-in" : ""}`}
+              key={label}
+            >
+              <dt>{label}</dt>
+              <dd>{description}</dd>
+            </div>
+          ))}
         </dl>
       </div>
     </div>

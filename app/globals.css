@@ -215,29 +215,26 @@
     line-height: 1.25rem;
   }
   .terminal-title { height: 2.09375rem; padding: var(--s2) var(--s3); display: flex; align-items: center; justify-content: space-between; gap: var(--s3); color: var(--muted); border-bottom: 1px solid var(--rule); font-size: var(--text-tiny); line-height: 1.03125rem; }
-  .terminal-title strong { display: inline-flex; align-items: center; gap: var(--s1); color: var(--terminal-green); font-size: inherit; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; transition: opacity 400ms var(--ease); }
-  .terminal-title strong i { width: 0.375rem; height: 0.375rem; background: currentColor; border-radius: var(--radius-round); animation: blink 1.4s steps(1) infinite; }
+  .terminal-status { display: inline-flex; align-items: center; color: var(--terminal-green); transition: opacity 400ms var(--ease); }
+  .terminal-status i { width: 0.375rem; height: 0.375rem; background: currentColor; border-radius: var(--radius-round); animation: status-pulse 2.4s ease-in-out infinite; }
   .terminal-body { min-height: 0; padding: var(--s4); }
   .eval-prompt { display: flex; min-height: 1.25rem; margin-bottom: var(--s3); color: var(--muted); }
   .eval-typed { color: color-mix(in srgb, var(--ink) 85%, transparent); white-space: pre; }
   .eval-cursor { display: inline-block; width: 0.5em; height: 1em; margin-left: 0.375em; background: var(--runner-blue); transform: translateY(-0.05em); vertical-align: text-bottom; animation: blink 1.2s steps(1) infinite; }
   .eval-row { min-height: 1.25rem; display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); column-gap: var(--s3); transition: opacity 220ms var(--ease), transform 220ms var(--ease); }
-  .eval-row dt { color: var(--muted); transition: color var(--fast) var(--ease); }
+  .eval-row dt { color: var(--muted); }
   .eval-row dd { color: color-mix(in srgb, var(--ink) 85%, transparent); }
-  .eval-glyph { white-space: pre; }
-  .eval-row.is-current dt { color: var(--runner-blue); }
   .eval-loop { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--rule); }
-  .eval-loop-row { margin-top: var(--s3); }
-  .eval-loop-row dd { color: var(--muted); }
-  /* While the inline script marks a pending replay, the exported settled markup
+  /* While the inline script marks a pending run, the exported settled markup
      stays hidden from the first frame; each element then returns through its
-     own state class as the run performs it. */
-  .eval-replay .terminal .eval-row { opacity: 0; transform: translateY(3px); }
+     own state class as the run performs it. The delayed reveal animation is a
+     safety net: if scripts never arrive, the content still appears. */
+  .eval-replay .terminal .eval-row { opacity: 0; transform: translateY(3px); animation: eval-reveal 1ms linear 2.6s forwards; }
   .terminal .eval-row.is-in { opacity: 1; transform: none; }
-  .eval-replay .terminal .eval-prompt { visibility: hidden; }
+  .eval-replay .terminal .eval-prompt { visibility: hidden; animation: eval-reveal 1ms linear 2.6s forwards; }
   .terminal.is-launching .eval-prompt, .terminal.is-live .eval-prompt { visibility: visible; }
-  .eval-replay .terminal .terminal-title strong { opacity: 0; }
-  .terminal .terminal-title strong.is-on { opacity: 1; }
+  .eval-replay .terminal .terminal-status { opacity: 0; animation: eval-reveal 1ms linear 2.6s forwards; }
+  .terminal .terminal-status.is-on { opacity: 1; }
 
   .header-nav a { min-height: var(--hit-target); display: inline-flex; flex: 0 0 auto; align-items: center; font-size: var(--text-small); line-height: 1.25rem; text-decoration: none; }
   .section-title > span { color: var(--muted); font-family: var(--font-mono); font-size: var(--text-tiny); }
@@ -336,6 +333,8 @@
   .resume-link::after { height: calc(100% + var(--s3)); min-height: 0; }
 
   @keyframes blink { 50% { opacity: 0; } }
+  @keyframes status-pulse { 50% { opacity: 0.25; } }
+  @keyframes eval-reveal { to { opacity: 1; transform: none; visibility: visible; } }
 }
 
 @layer responsive {
@@ -365,18 +364,15 @@
   }
 
   /* Below 400px no key column leaves the seven descriptions on one line, so the
-     runner stacks key over value and every row keeps the same height. The
-     ✓ alignment pad collapses with the column: leading spaces vanish while a
-     done row keeps its "✓ ". */
+     runner stacks key over value and every row keeps the same height. */
   @media (max-width: 25rem) {
     .eval-row { grid-template-columns: minmax(0, 1fr); column-gap: 0; }
-    .eval-glyph { white-space: normal; }
   }
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-    .terminal-title strong i, .eval-cursor { animation: none !important; }
+    .terminal-status i, .eval-cursor { animation: none !important; }
   }
 }
 
