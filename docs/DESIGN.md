@@ -21,8 +21,8 @@ colors:
 typography:
   sans: "Inter Variable"
   mono: "JetBrains Mono Variable"
-  title: "clamp(36px, 6vw, 44px) / 40px"
-  title-compact: "30px / 37.5px"
+  title: "clamp(36px, 6vw, 44px) / 1.08"
+  title-compact: "30px / 1.12"
   lede: "18px / 1.6"
   body: "16px / 1.65"
   content: "14px / 1.625"
@@ -98,7 +98,7 @@ Six steps, each one distinguishable: **44 / 18 / 16 / 14 / 11 / 10**. Every one 
 | `--text-small` | 11px | navigation, publication dates, metadata, footer |
 | `--text-tiny` | 10px | section numbers, terminal chrome |
 
-The title is a clamp, not a step, so it scales with the viewport. `--text-title-compact` (30px) is part of the same axis: the hero name keeps a smaller size below 672px so it stays on one line.
+The title is a clamp, not a step, so it scales with the viewport. `--text-title-compact` (30px) is part of the same axis: page titles step down to it below 672px, which keeps the hero name on one line.
 
 Site body is 16px and compact section copy is 14px. The home page is compact copy; article pages use site body. That is the only place two content sizes coexist, and it is intentional.
 
@@ -108,6 +108,8 @@ article, prose is 16px, so the heading takes 18px: at 14px it was smaller than
 the paragraphs beneath it and read as their caption. The two surfaces are allowed
 to differ here because the article has a different job.
 
+Spacing inside a text pill is the one place that leaves the 4px scale: inline code pads in `em` so it tracks the type it sits in.
+
 Line height follows the role, not the size: 1.8 for prose, 1.65 for compact copy
 and code, 1.45 for labels and metadata.
 
@@ -116,6 +118,8 @@ and code, 1.45 for labels and metadata.
 The 4px scale is strict. Normal gaps use 12–24px.
 
 Section separation is deliberately asymmetric: **72px above a rule, 40px below it** on desktop, **56/32** below 672px. The rule belongs to the section it opens, not to the gap between two sections, so it sits closer to the heading that follows than to the block it closes. `--rule-space-above` and `--rule-space-below` carry both values, and every rule on the page obeys them — including the two that are not numbered-section boundaries, the hero's edge with section 01 and the footer's top border.
+
+Markdown block elements have their UA margins reset, so the flow rule is the only thing setting vertical space inside an article. A leftover browser margin-bottom on a code block is invisible while margins collapse and wrong the moment they do not.
 
 Article bodies run on one flow rule: every block separates from its predecessor
 by 24px, and only the elements that need more air widen it — 64px above a section
@@ -155,6 +159,8 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 
 | Date | Decision | Reason |
 |---|---|---|
+| 2026-08-04 | The article title block sits closer to its body than two sections sit to each other | At section spacing the cover read as detached from the article it introduces; the asymmetry stays, the total drops from 129px to 81px |
+| 2026-08-04 | The article section number scales with its heading | Raising the heading to 18px had left the number at 0.56 of it, against the 0.71 it held before |
 | 2026-08-04 | The writing row pins its own type instead of inheriting the surface | The archive renders prose at 16px, so an inherited description outweighed the 14px title of the post it described |
 | 2026-08-04 | Article section headings take 18px, one step above article prose | At 14px the heading was smaller than the paragraphs it governed and read as their caption |
 | 2026-08-04 | Writing index title moves to the sans face | It was the only large monospace heading on the site, while the other two page titles were sans |
