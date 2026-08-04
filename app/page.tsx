@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { EvalTerminal } from "@/components/EvalTerminal";
 import { SiteChrome } from "@/components/SiteChrome";
 import { WritingList } from "@/components/WritingList";
 import features from "@/config/features.json";
@@ -14,16 +15,6 @@ const nav = [
   "investing",
   "contact",
 ];
-
-const productEval = [
-  ["frame", "where user value is blocked"],
-  ["inspect", "concrete failed journeys"],
-  ["define", "“better” as an eval"],
-  ["build", "the smallest end‑to‑end intervention"],
-  ["measure", "behavior against baseline"],
-  ["learn", "update the product thesis"],
-  ["decide", "ship · scale · kill"],
-] as const;
 
 function Section({ number, id, title, children }: { number: string; id: string; title: string; children: React.ReactNode }) {
   return (
@@ -62,26 +53,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="terminal" aria-label="Product evaluation workflow">
-          <div className="terminal-title">
-            <span>andrey.run / product_eval</span>
-            <strong><i aria-hidden="true" />active</strong>
-          </div>
-          <div className="terminal-body">
-            <dl className="eval-list">
-              {productEval.map(([label, description], index) => (
-                <div
-                  className={`eval-row${label === "learn" ? " eval-loop" : ""}`}
-                  key={label}
-                  style={{ "--eval-delay": `${index * 4}s` } as React.CSSProperties}
-                >
-                  <dt>{label}</dt>
-                  <dd>{description}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </div>
+        <EvalTerminal />
       </section>
 
       <Section number="01" id="who" title="who">

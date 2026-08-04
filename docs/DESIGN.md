@@ -71,7 +71,7 @@ The system is deliberately small. One column, two faces, six type steps, one acc
 3. Hierarchy comes from spacing, weight, section rules, and numbering—not extra card surfaces.
 4. Every interactive hover and focus state uses `--accent`. Focus must remain visible.
 5. Investing uses the same stacked row primitive as building. No one-off grid or spacing model.
-6. Motion is functional and restrained. The terminal status indicator and slow eval scan are the only ambient loops; both are disabled by `prefers-reduced-motion`.
+6. Motion is functional and restrained. The terminal performs one replay per session; after it, the status indicator and the two-second step advance are the only ambient loops. `prefers-reduced-motion` removes them all.
 7. Placeholders stay visibly muted; copy is never silently invented to fill them.
 8. The header contains only unnumbered horizontal section navigation and the theme control. It is sticky, single-line, and horizontally scrollable on narrow screens.
 9. Rules separate structural regions only: sticky header, major sections, terminal chrome, and footer. Repeated content rows rely on spacing instead of dividers.
@@ -87,7 +87,7 @@ Signal blue is the identity accent and is no longer user-selectable. It carries 
 
 Text links inherit the color of their surrounding hierarchy at rest, move to `--accent` on hover, and use the accent focus ring for keyboard navigation. Email and résumé download follow the same interaction rule as the social links instead of appearing permanently active. Footer navigation remains muted at rest because it belongs to footer furniture. Persistent accent is reserved for semantic signals: work roles, building metadata, error status, writing navigation, and the runner sequence.
 
-The eval runner uses fixed signal blue for execution state. Only the left-hand step label animates across a 28-second cycle: one second fading in, two seconds held, and one second fading out before the next step begins. The sequence is `frame → inspect → define → build → measure → learn → decide`. Descriptions and row backgrounds remain static. This stays independent from the identity accent.
+The eval runner uses fixed signal blue for execution state. On the first pageview of a session the terminal performs its run once: `$ andrey run product_eval` types out, the seven steps stream in, and the ACTIVE status lights last. It then hands off to a continuous trace advancing every two seconds: the current step carries a signal-blue key, a block cursor at the end of its description, and `aria-current="step"`; completed steps carry a muted ✓ in a reserved two-character gutter; reaching `decide` clears the marks and the loop returns to `frame`, which the closing `↺ back to frame` line states. The sequence is `frame → inspect → define → build → measure → learn → decide`. Repeat pageviews land directly on the settled trace — the replay is guarded by `sessionStorage`, marked before first paint by an inline script, and the exported markup carries the settled state so the terminal reads complete without JavaScript. Descriptions and row backgrounds remain static. This stays independent from the identity accent.
 
 ## Type scale
 
@@ -159,11 +159,11 @@ Writing source files live in `content/writing/*.md`. The filename defines the ro
 - Minimum supported viewport: 320px; no horizontal overflow.
 - Every target meets WCAG 2.2 SC 2.5.8 (AA): 24×24, or the spacing exception. That is what `npm run audit` enforces.
 - Standalone controls also aim for a 44px target, delivered by a pseudo-element so nothing shifts visually. Header navigation items and the email/résumé pair fall short of 44px because their neighbours sit closer than that; both still clear AA on spacing. 44px is SC 2.5.5, Level AAA, so this is reported and not treated as a failure.
-- Below 400px the eval runner stacks its key over its value, because no key column leaves all seven descriptions on one line.
+- Below 400px the eval runner stacks its key over its value, because no key column leaves all seven descriptions on one line. The ✓ alignment gutter collapses with the column, so keys stay flush while a done row keeps its mark.
 - Every rendered text node clears WCAG AA in both themes: 4.5:1 normal, 3:1 large. `npm run audit` measures this with real alpha compositing.
 - Color is never the sole focus indicator.
 - Portrait alt text identifies the subject.
-- Reduced-motion preferences stop the terminal status and eval-scan loops, then collapse transitions.
+- Reduced-motion preferences skip the replay entirely, hold the runner static at its first step with a solid cursor, stop the status dot, then collapse transitions.
 
 ## Change protocol
 
@@ -173,6 +173,9 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 
 | Date | Decision | Reason |
 |---|---|---|
+| 2026-08-04 | The runner performs its run: a one-shot replay, then a legible two-second trace | The 28-second key scan was invisible inside a typical visit; a typed command, streamed steps, ✓ marks and a block cursor make the loop observable, and `↺ back to frame` closes it |
+| 2026-08-04 | The replay runs once per session and the exported markup stays settled | A `sessionStorage` guard plus a pre-paint class keep repeat views quiet, avoid a content flash, and leave the no-JavaScript page complete |
+| 2026-08-04 | The terminal drops its fixed min-height | Rows stay in layout through the whole run, so content defines the card and the reserved dead zone below `decide` goes |
 | 2026-08-04 | Section spacing runs on one step and its multiples: 24 / 48 / 72 | The label sat 24px from the first row while the rows sat 44px apart, so a section label read as part of its first entry and the rest of the list read as leftovers |
 | 2026-08-04 | Section edges become symmetric, 72px on both sides of a rule, superseding the 72/40 asymmetry | Once the label needs 48px of clearance below it, 40px above it puts the label closer to the rule that opens the section than to the section itself |
 | 2026-08-04 | The writing row moves its date to the right of the title, on the title's baseline | It is the same row as a work entry — title left, muted mono metadata right — and it was the only list on the site stacking its metadata above the title |

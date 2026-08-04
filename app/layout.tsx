@@ -23,6 +23,17 @@ const themeScript = `(function () {
   }
 })();`;
 
+// Marks a pending terminal replay before first paint, so the exported settled
+// markup never flashes ahead of the run. Skipped once the session has seen the
+// replay, and for visitors who prefer reduced motion.
+const evalScript = `(function () {
+  try {
+    if (!sessionStorage.getItem('eval-ran') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('eval-replay');
+    }
+  } catch (e) {}
+})();`;
+
 const personSchema = {
   "@context": "https://schema.org",
   "@type": "Person",
@@ -72,6 +83,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: evalScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
