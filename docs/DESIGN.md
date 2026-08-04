@@ -71,7 +71,7 @@ The system is deliberately small. One column, two faces, six type steps, one acc
 3. Hierarchy comes from spacing, weight, section rules, and numbering—not extra card surfaces.
 4. Every interactive hover and focus state uses `--accent`. Focus must remain visible.
 5. Investing uses the same stacked row primitive as building. No one-off grid or spacing model.
-6. Motion is functional and restrained. The terminal performs its run once per pageview and stops at `decide`; after it, the pulsing status dot is the only ambient loop. `prefers-reduced-motion` removes both.
+6. Motion is functional and restrained. The terminal performs its run once per pageview and rests at `decide`; after it, the pulsing status dot and the resting cursor blink are the only ambient loops. `prefers-reduced-motion` removes them all.
 7. Placeholders stay visibly muted; copy is never silently invented to fill them.
 8. The header contains only unnumbered horizontal section navigation and the theme control. It is sticky, single-line, and horizontally scrollable on narrow screens.
 9. Rules separate structural regions only: sticky header, major sections, terminal chrome, and footer. Repeated content rows rely on spacing instead of dividers.
@@ -85,9 +85,9 @@ The theme follows the operating system on a first visit and is resolved by an in
 
 Signal blue is the identity accent and is no longer user-selectable. It carries two values because no single tone at 225° clears 4.5:1 on both `#FAF9F6` and `#202020`: `#2B61FF` in light, `#5B81F1` in dark. `--runner-blue` stays a separate token with the same pair, so the execution state can diverge from the identity accent again without touching components.
 
-Text links inherit the color of their surrounding hierarchy at rest, move to `--accent` on hover, and use the accent focus ring for keyboard navigation. Email and résumé download follow the same interaction rule as the social links instead of appearing permanently active. Footer navigation remains muted at rest because it belongs to footer furniture. Persistent accent is reserved for semantic signals: work roles, building metadata, error status, and writing navigation.
+Text links inherit the color of their surrounding hierarchy at rest, move to `--accent` on hover, and use the accent focus ring for keyboard navigation. Email and résumé download follow the same interaction rule as the social links instead of appearing permanently active. Footer navigation remains muted at rest because it belongs to footer furniture. Persistent accent is reserved for semantic signals: work roles, building metadata, error status, writing navigation, and the runner's resting step.
 
-The eval runner performs its run once per pageview: `$ andrey run product_eval` types out behind a signal-blue block cursor, the seven steps stream in, and the run ends at `decide` — nothing loops, marks, or advances afterwards. The green status dot lights when the run completes and keeps a slow 2.4s pulse as the terminal's only ongoing sign of life; it carries no label. The sequence is `frame → inspect → define → build → measure → learn → decide`. An inline script marks the pending run before first paint so the settled markup never flashes ahead of it, a delayed CSS reveal restores the content even if scripts never arrive, and the exported markup carries the settled state so the terminal reads complete without JavaScript. Signal blue appears only while the run executes; at rest the runner holds no accent. Descriptions and row backgrounds remain static.
+The eval runner performs its run once per pageview: `$ andrey run product_eval` types out behind a signal-blue block cursor, the seven steps stream in, then execute one by one at two seconds per step — the current step carries a signal-blue key and a block cursor at the end of its description, completed steps keep a muted ✓ in a reserved two-character gutter. The run rests at `decide` and never loops: six marks, the final step in signal blue with its cursor blinking, `aria-current="step"` on the resting step. The green status dot lights at that moment and keeps a slow 2.4s pulse; it carries no label. The sequence is `frame → inspect → define → build → measure → learn → decide`. An inline script marks the pending run before first paint so the settled markup never flashes ahead of it, a delayed CSS reveal restores the content even if scripts never arrive, and the exported markup carries the settled completed cycle so the terminal reads complete without JavaScript. Descriptions and row backgrounds remain static.
 
 ## Type scale
 
@@ -159,11 +159,11 @@ Writing source files live in `content/writing/*.md`. The filename defines the ro
 - Minimum supported viewport: 320px; no horizontal overflow.
 - Every target meets WCAG 2.2 SC 2.5.8 (AA): 24×24, or the spacing exception. That is what `npm run audit` enforces.
 - Standalone controls also aim for a 44px target, delivered by a pseudo-element so nothing shifts visually. Header navigation items and the email/résumé pair fall short of 44px because their neighbours sit closer than that; both still clear AA on spacing. 44px is SC 2.5.5, Level AAA, so this is reported and not treated as a failure.
-- Below 400px the eval runner stacks its key over its value, because no key column leaves all seven descriptions on one line.
+- Below 400px the eval runner stacks its key over its value, because no key column leaves all seven descriptions on one line. The ✓ alignment gutter collapses with the column, so keys stay flush while a done row keeps its mark.
 - Every rendered text node clears WCAG AA in both themes: 4.5:1 normal, 3:1 large. `npm run audit` measures this with real alpha compositing.
 - Color is never the sole focus indicator.
 - Portrait alt text identifies the subject.
-- Reduced-motion preferences skip the run entirely and land on the settled terminal with a steady status dot, then collapse transitions.
+- Reduced-motion preferences skip the run entirely and land on the settled completed cycle — solid cursor on `decide`, steady status dot — then collapse transitions.
 
 ## Change protocol
 
@@ -173,7 +173,8 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 
 | Date | Decision | Reason |
 |---|---|---|
-| 2026-08-04 | The run ends at `decide` and nothing loops, superseding the two-second trace | A finished run re-running forever contradicted itself; one pass per pageview keeps the story and removes the ✓ churn, the moving cursor, and the `↺ back to frame` line whose loop no longer exists |
+| 2026-08-04 | The run keeps its trace and rests at `decide` as a completed cycle | Dropping the marks with the loop threw the story out with the repetition; the pass now executes visibly — blue step, accumulating ✓ — and ends with six marks and the final step held in blue |
+| 2026-08-04 | The run ends at `decide` and nothing loops, superseding the two-second trace | A finished run re-running forever contradicted itself; one pass per pageview keeps the story and removes the wrap reset and the `↺ back to frame` line whose loop no longer exists |
 | 2026-08-04 | ACTIVE loses its word; a pulsing green dot remains | The label restated what the dot already signals; the dot alone keeps the life sign at lower volume |
 | 2026-08-04 | The run replays on every pageview, superseding the session guard | Reload is the natural way to watch it again, and the run is short enough not to wear out |
 | 2026-08-04 | The runner performs its run: a one-shot replay, then a legible two-second trace | The 28-second key scan was invisible inside a typical visit; a typed command, streamed steps, ✓ marks and a block cursor make the loop observable, and `↺ back to frame` closes it |

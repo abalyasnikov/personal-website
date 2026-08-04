@@ -222,8 +222,10 @@
   .eval-typed { color: color-mix(in srgb, var(--ink) 85%, transparent); white-space: pre; }
   .eval-cursor { display: inline-block; width: 0.5em; height: 1em; margin-left: 0.375em; background: var(--runner-blue); transform: translateY(-0.05em); vertical-align: text-bottom; animation: blink 1.2s steps(1) infinite; }
   .eval-row { min-height: 1.25rem; display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); column-gap: var(--s3); transition: opacity 220ms var(--ease), transform 220ms var(--ease); }
-  .eval-row dt { color: var(--muted); }
+  .eval-row dt { color: var(--muted); transition: color var(--fast) var(--ease); }
   .eval-row dd { color: color-mix(in srgb, var(--ink) 85%, transparent); }
+  .eval-glyph { white-space: pre; }
+  .eval-row.is-current dt { color: var(--runner-blue); }
   .eval-loop { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--rule); }
   /* While the inline script marks a pending run, the exported settled markup
      stays hidden from the first frame; each element then returns through its
@@ -364,9 +366,12 @@
   }
 
   /* Below 400px no key column leaves the seven descriptions on one line, so the
-     runner stacks key over value and every row keeps the same height. */
+     runner stacks key over value and every row keeps the same height. The
+     ✓ alignment pad collapses with the column: leading spaces vanish while a
+     done row keeps its "✓ ". */
   @media (max-width: 25rem) {
     .eval-row { grid-template-columns: minmax(0, 1fr); column-gap: 0; }
+    .eval-glyph { white-space: normal; }
   }
 
   @media (prefers-reduced-motion: reduce) {

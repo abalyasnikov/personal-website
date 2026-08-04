@@ -16,19 +16,21 @@ const command = "andrey run product_eval";
 const typeMs = 28;
 const typeDelayMs = 300;
 const streamMs = 110;
-const doneDelayMs = 400;
+const traceDelayMs = 800;
+const stepMs = 2000;
 
-// The exported page carries the settled state, so the terminal reads complete
-// without JavaScript. The inline script in the layout marks a pending run
-// before first paint; this component performs it once per pageview: the
-// command types out, the steps stream in, the run ends at `decide`, and the
-// status dot starts its pulse. Nothing loops.
-type Phase = "settled" | "typing" | "streaming" | "done";
+// The exported page carries the settled state — a completed cycle resting at
+// `decide` — so the terminal reads complete without JavaScript. The inline
+// script in the layout marks a pending run before first paint; this component
+// performs it once per pageview: the command types out, the steps stream in,
+// then execute one by one until the run rests at `decide`. Nothing loops.
+type Phase = "settled" | "typing" | "streaming" | "tracing" | "done";
 
 export function EvalTerminal() {
   const [phase, setPhase] = useState<Phase>("settled");
   const [typedCount, setTypedCount] = useState(command.length);
   const [streamedCount, setStreamedCount] = useState(0);
+  const [current, setCurrent] = useState(steps.length - 1);
   const [dotOn, setDotOn] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -39,6 +41,7 @@ export function EvalTerminal() {
     };
     const finish = () => {
       setPhase("done");
+      setCurrent(steps.length - 1);
       setDotOn(true);
       document.documentElement.classList.remove("eval-replay");
     };
@@ -59,7 +62,15 @@ export function EvalTerminal() {
       for (let i = 1; i <= steps.length; i += 1) {
         later(() => setStreamedCount(i), typeDone + i * streamMs);
       }
-      later(finish, typeDone + steps.length * streamMs + doneDelayMs);
+      const traceStart = typeDone + steps.length * streamMs + traceDelayMs;
+      later(() => {
+        setPhase("tracing");
+        setCurrent(0);
+      }, traceStart);
+      for (let i = 1; i < steps.length - 1; i += 1) {
+        later(() => setCurrent(i), traceStart + i * stepMs);
+      }
+      later(finish, traceStart + (steps.length - 1) * stepMs);
     }
 
     return () => {
@@ -69,6 +80,7 @@ export function EvalTerminal() {
   }, []);
 
   const launching = phase === "typing" || phase === "streaming";
+  const showRun = !launching;
 
   return (
     <div
@@ -88,15 +100,32 @@ export function EvalTerminal() {
           {launching ? <span className="eval-cursor" aria-hidden="true" /> : null}
         </div>
         <dl className="eval-list">
-          {steps.map(([label, description], index) => (
-            <div
-              className={`eval-row${label === "learn" ? " eval-loop" : ""}${index < streamedCount ? " is-in" : ""}`}
-              key={label}
-            >
-              <dt>{label}</dt>
-              <dd>{description}</dd>
-            </div>
-          ))}
+          {steps.map(([label, description], index) => {
+            const isCurrent = showRun && index === current;
+            const isDone = showRun && index < current;
+            const rowClass = [
+              "eval-row",
+              label === "learn" ? "eval-loop" : "",
+              index < streamedCount ? "is-in" : "",
+              isCurrent ? "is-current" : "",
+            ]
+              .filter(Boolean)
+              .join(" ");
+            return (
+              <div className={rowClass} key={label} aria-current={isCurrent ? "step" : undefined}>
+                <dt>
+                  <span className="eval-glyph" aria-hidden="true">
+                    {isDone ? "✓ " : "  "}
+                  </span>
+                  {label}
+                </dt>
+                <dd>
+                  {description}
+                  {isCurrent ? <span className="eval-cursor" aria-hidden="true" /> : null}
+                </dd>
+              </div>
+            );
+          })}
         </dl>
       </div>
     </div>
