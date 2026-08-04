@@ -3,7 +3,7 @@ title: Running ML against prediction markets
 description: What survives contact with live execution, and what only ever worked in the backtest.
 status: draft
 date: 2026-07-31
-order: 3
+order: 4
 ---
 
 ## a backtest is a proposal

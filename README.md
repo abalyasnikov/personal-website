@@ -74,9 +74,9 @@ Post copy goes here.
 > A blockquote becomes a highlighted takeaway.
 ```
 
-`status` is `draft` or `published`. It is technical metadata, not a visible label
-or access control: every file in the directory is listed and gets a public route.
-Keep private drafts elsewhere.
+`status` decides what ships. Only `published` posts are listed, exported as
+static routes and written to the sitemap; a `draft` produces no page at all.
+Drafts still render under `next dev`, so they can be previewed before release.
 
 When `date` is present, it appears on the home-page preview, the complete writing
 index, and the article page. The home page shows three posts and links to the full

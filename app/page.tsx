@@ -4,7 +4,7 @@ import { SiteChrome } from "@/components/SiteChrome";
 import { WritingList } from "@/components/WritingList";
 import features from "@/config/features.json";
 import { building, investing, work } from "@/content/site";
-import { getAllPosts } from "@/lib/posts";
+import { getPublishedPosts } from "@/lib/posts";
 
 const nav = [
   "who",
@@ -38,7 +38,7 @@ function Section({ number, id, title, children }: { number: string; id: string; 
 }
 
 export default function Home() {
-  const posts = features.showWritingOnHome ? getAllPosts() : [];
+  const posts = features.showWritingOnHome ? getPublishedPosts() : [];
   const investingNumber = features.showWritingOnHome ? "05" : "04";
   const contactNumber = features.showWritingOnHome ? "06" : "05";
 

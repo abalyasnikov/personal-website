@@ -16,6 +16,10 @@ function readFeatures() {
   return value;
 }
 
+/**
+ * Mirrors getPublishedPosts in lib/posts.ts: drafts produce no route, so the
+ * audit must not expect one. Keep the status rule here in step with that file.
+ */
 function readExpectedPosts() {
   return fs.readdirSync(POSTS_DIRECTORY)
     .filter((fileName) => fileName.endsWith(".md"))
@@ -26,8 +30,10 @@ function readExpectedPosts() {
         ? data.date.toISOString().slice(0, 10)
         : typeof data.date === "string" ? data.date : "";
       const order = typeof data.order === "number" ? data.order : Number.MAX_SAFE_INTEGER;
-      return { path: `/writing/${fileName.slice(0, -3)}`, date, order };
+      const status = String(data.status ?? "draft").toLowerCase();
+      return { path: `/writing/${fileName.slice(0, -3)}`, date, order, status };
     })
+    .filter((post) => post.status === "published")
     .sort((a, b) => a.order - b.order || b.date.localeCompare(a.date) || a.path.localeCompare(b.path));
 }
 

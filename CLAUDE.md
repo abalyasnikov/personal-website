@@ -52,10 +52,26 @@ Use these in order:
 - Preserve confirmed wording and ordering unless the user explicitly asks to
   revisit it.
 
+## Public repository and external services
+
+- Treat `CLAUDE.md` and every tracked file as public. Never store credentials,
+  API tokens, OAuth codes or challenges, cookies, payment details, registrar
+  contact data, or private dashboard URLs in the repository.
+- Keep authentication in user-local browser sessions, credential stores,
+  environment variables, or globally configured tools. Refer to setup only by
+  tool name and required capability, never by secret value.
+- If a newly configured external tool is unavailable in the current agent
+  session, start a fresh session instead of copying credentials into prompts or
+  files.
+- Before a paid or irreversible external action, verify the exact target and
+  final price or impact. Proceed only after explicit user authorization, and do
+  not add extras beyond the approved scope.
+
 ## Known open work
 
-- The three current writing files are public drafts; none is published yet.
-  Their status is technical metadata and is not shown to visitors.
+- `content/writing/` holds one published post and three drafts. The drafts are
+  placeholders from the build-out of the writing system; they are not exported
+  and are not visible to anyone. Delete them once they have served their purpose.
 - Writing is currently hidden from the home page and its section navigation by
   `config/features.json`. The archive and article routes remain implemented and
   directly accessible; flip the flag when they are ready to surface.
@@ -87,9 +103,11 @@ Post copy.
 - The filename becomes the slug. Do not duplicate it in frontmatter.
 - `status` is `draft` or `published`; `date` and `order` are optional. A present
   date is shown on the home page, writing index, and article page.
-- `status` is technical metadata, not a visible label or access control. Draft
-  files are listed and receive static public routes; keep private drafts outside
-  this folder.
+- `status` decides what ships. Only `published` posts are listed, exported as
+  static routes and written to the sitemap; a `draft` produces no page at all.
+  Drafts still render under `next dev`, which is how they get previewed.
+- Read posts through `getPublishedPosts` anywhere the result reaches a visitor.
+  `getAllPosts` includes drafts and belongs only in local tooling.
 - Ordered posts come first. Equal or missing `order` values fall back to newest
   date, then slug, so builds remain deterministic.
 - The page creates the `<h1>` from `title`, so article bodies start at `##`.

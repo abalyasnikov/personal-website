@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ArticleChrome } from "@/components/ArticleChrome";
 import { WritingList } from "@/components/WritingList";
 import features from "@/config/features.json";
-import { getAllPosts } from "@/lib/posts";
+import { getPublishedPosts } from "@/lib/posts";
 
 export const metadata: Metadata = {
   title: "Writing — Andrey Balyasnikov",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function WritingPage() {
-  const posts = getAllPosts();
+  const posts = getPublishedPosts();
 
   return (
     <main className="site-shell article-shell" id="top">

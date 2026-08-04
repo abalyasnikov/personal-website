@@ -84,6 +84,11 @@ function readPostFile(slug: string): Post {
   };
 }
 
+/**
+ * Every post on disk, drafts included. Use this only where drafts are wanted,
+ * such as local previews. Anything that ships to visitors takes
+ * `getPublishedPosts` instead.
+ */
 export function getAllPosts(): PostSummary[] {
   if (!fs.existsSync(postsDirectory)) return [];
 
@@ -98,6 +103,16 @@ export function getAllPosts(): PostSummary[] {
       return (b.date ?? "").localeCompare(a.date ?? "") || a.slug.localeCompare(b.slug);
     })
     .map(({ content: _content, ...post }) => post);
+}
+
+/**
+ * Posts marked `published`. This is what the home page, the writing index, the
+ * static routes and the sitemap are built from, so a `draft` file never reaches
+ * the export: no listing, no route, no sitemap entry. Drafts still render under
+ * `next dev`, which is how they get previewed.
+ */
+export function getPublishedPosts(): PostSummary[] {
+  return getAllPosts().filter((post) => post.status === "published");
 }
 
 export function getPost(slug: string): Post | undefined {

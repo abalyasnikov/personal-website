@@ -3,7 +3,7 @@ title: The day push notifications broke
 description: Usage dropped 20–30% in a day. That told us which surface actually held the product together.
 status: draft
 date: 2026-07-31
-order: 1
+order: 2
 ---
 
 ## the drop
