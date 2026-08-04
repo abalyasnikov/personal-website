@@ -38,10 +38,13 @@
   --s8: 4rem;
   --s9: 6rem;
 
-  /* Section rhythm. A section rule belongs to the section it opens, so it sits
-     closer to that section than to the one it closes. */
-  --rule-space-above: 4.5rem;
-  --rule-space-below: 2.5rem;
+  /* Section rhythm. One step and its multiples: peer rows sit X apart, a
+     section label sits 2X above the block it opens, and a section edge is 3X.
+     Grouping then reads by distance alone, which is what lets repeated rows go
+     without dividers. */
+  --row-space: 1.5rem;      /* X  */
+  --label-space: 3rem;      /* 2X */
+  --section-space: 4.5rem;  /* 3X */
 
   --page-width: 41rem;
   --page-gutter: clamp(1.25rem, 5vw, 2rem);
@@ -64,11 +67,13 @@
   --runner-blue: #2b61ff;
 }
 
-/* The same proportion, tightened for narrow viewports. */
+/* The same hierarchy, tightened for narrow viewports. The row step holds; the
+   two multiples above it compress, because a phone screen cannot spend 72px on
+   a section edge and still show the section. */
 @media (max-width: 42rem) {
   :root {
-    --rule-space-above: 3.5rem;
-    --rule-space-below: 2rem;
+    --label-space: 2.5rem;
+    --section-space: 3.5rem;
   }
 }
 

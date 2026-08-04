@@ -72,9 +72,10 @@ Use these in order:
 - `content/writing/` holds one published post and three drafts. The drafts are
   placeholders from the build-out of the writing system; they are not exported
   and are not visible to anyone. Delete them once they have served their purpose.
-- Writing is currently hidden from the home page and its section navigation by
-  `config/features.json`. The archive and article routes remain implemented and
-  directly accessible; flip the flag when they are ready to surface.
+- Writing is live: `showWritingOnHome` in `config/features.json` is on, so the
+  home page carries a Writing section and its navigation entry, and the section
+  numbering runs to `06 contact`. Turning the flag off hides both and shifts the
+  numbering back; the archive and article routes stay reachable either way.
 - `public/og.png` is generated, not hand-edited. Its description is a separate
   approved line from the hero and is set at 32px, where it fits two lines with
   7px to spare in the 640px column. Editing that line means re-measuring the
@@ -124,6 +125,10 @@ Post copy.
   or interaction states.
 - Use semantic variables such as `--canvas`, `--ink`, `--muted`, `--rule`, and
   `--accent`; do not place raw palette values in components.
+- Vertical space inside a section comes from `--row-space`, `--label-space` and
+  `--section-space`, which are one step and its multiples: X between peer rows,
+  2X below a section label, 3X at a section edge. Repeated rows carry no padding
+  of their own, and the three distances have to stay in that order.
 - A new color, type size, spacing value, radius, or motion rule is a design-system
   change. Update `docs/DESIGN.md` and `styles/tokens.css` together.
 - The theme follows the operating system on a first visit and is resolved by the

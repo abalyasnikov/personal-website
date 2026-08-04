@@ -7,11 +7,10 @@ export function WritingList({ posts }: { posts: PostSummary[] }) {
       {posts.map((post) => (
         <Link href={`/writing/${post.slug}`} key={post.slug}>
           <div>
-            {post.date ? <time dateTime={post.date}>{formatPostDate(post.date)}</time> : null}
             <h3>{post.title}</h3>
-            <p>{post.description}</p>
+            {post.date ? <time dateTime={post.date}>{formatPostDate(post.date)}</time> : null}
           </div>
-          <b aria-hidden="true">→</b>
+          <p>{post.description}</p>
         </Link>
       ))}
     </div>

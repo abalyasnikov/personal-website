@@ -73,7 +73,7 @@
   .article-nav a { min-height: var(--hit-target); display: inline-flex; flex: 0 0 auto; align-items: center; font-size: var(--text-small); text-decoration: none; }
   .article-nav span { min-width: 0; overflow: hidden; color: var(--muted); font-size: var(--text-tiny); text-overflow: ellipsis; white-space: nowrap; }
 
-  .reference-hero { margin: 0; padding: var(--s7) 0 var(--rule-space-above); }
+  .reference-hero { margin: 0; padding: var(--s7) 0 var(--section-space); }
   .identity { margin-bottom: var(--s5); display: flex; align-items: flex-start; gap: var(--s5); }
   .identity img {
     width: 7rem;
@@ -87,12 +87,12 @@
   }
 
   .reference-section {
-    padding: var(--rule-space-below) 0 var(--rule-space-above);
+    padding: var(--section-space) 0;
     border-top: 1px solid var(--rule);
     border-color: color-mix(in srgb, var(--rule) 70%, transparent);
     scroll-margin-top: 5.5rem;
   }
-  .section-title { margin-bottom: var(--s5); display: flex; align-items: baseline; gap: var(--s2); }
+  .section-title { margin-bottom: var(--label-space); display: flex; align-items: baseline; gap: var(--s2); }
   .section-content { font-size: var(--text-content); line-height: 1.625; }
 
   .post { padding-top: var(--s8); }
@@ -174,7 +174,8 @@
   /* Same face and weight as the other two page titles; the archive had been the
      only large monospace heading on the site. */
   .writing-index > h1 { font-size: var(--text-title); font-weight: 600; line-height: 1.08; letter-spacing: -0.035em; }
-  .writing-index > .writing-list { margin-top: var(--s7); }
+  /* Same job as a section label on the home page, so it takes the same step. */
+  .writing-index > .writing-list { margin-top: var(--label-space); }
 }
 
 @layer components {
@@ -230,12 +231,13 @@
   .section-content > p + p { margin-top: var(--s5); }
   .lede { color: color-mix(in srgb, var(--ink) 80%, transparent); font-size: var(--text-content); font-weight: 400; line-height: 1.625; }
 
-  .stack-list, .plain-list { display: grid; gap: var(--s5); }
-  .stack-list article, .plain-row { padding: 0 0 1.25rem; }
-  .stack-list article:last-child, .plain-row:last-child { padding-bottom: 0; }
-  .stack-list article header { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s4); }
+  /* One rhythm for every repeated row on the page: the gap is the only thing
+     separating entries, so it has to be smaller than the space that separates
+     the section label from the list it opens. */
+  .stack-list, .plain-list, .writing-list { display: grid; gap: var(--row-space); }
+  .stack-list article header, .writing-list > a > div { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s4); }
   .stack-list article header > div { min-width: 0; display: flex; align-items: baseline; gap: var(--s2); white-space: nowrap; }
-  .work-date { flex: 0 0 auto; color: var(--muted); font-family: var(--font-mono); font-size: var(--text-small); line-height: 1.45; white-space: nowrap; }
+  .work-date, .writing-list time { flex: 0 0 auto; color: var(--muted); font-family: var(--font-mono); font-size: var(--text-small); line-height: 1.45; white-space: nowrap; }
   .stack-list h3, .plain-row h3, .writing-list h3 { font-size: var(--text-content); font-weight: 500; line-height: 1.375rem; }
   .stack-list header p, .plain-row span { color: var(--accent); font-family: var(--font-mono); font-size: var(--text-small); }
   .stack-list article > div { margin-top: var(--s1); color: color-mix(in srgb, var(--ink) 80%, transparent); }
@@ -244,27 +246,18 @@
   .plain-row > div { display: flex; align-items: baseline; gap: var(--s2); }
   .plain-row > div span { display: inline; line-height: 1.45; }
   .plain-row p { margin-top: var(--s1); color: color-mix(in srgb, var(--ink) 80%, transparent); line-height: 1.625; }
-  .writing-list { display: grid; }
-  .writing-list > a {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 1rem;
-    gap: var(--s4);
-    padding: 1.25rem 0;
-    text-decoration: none;
-  }
-  .writing-list time { display: block; margin-bottom: var(--s2); color: var(--muted); font-family: var(--font-mono); font-size: var(--text-small); line-height: 1.45; }
+  /* The row is the target, so it takes no padding of its own: the rhythm gap
+     already keeps neighbouring targets 24px apart. */
+  .writing-list > a { display: block; text-decoration: none; }
+  /* The title wraps under a pinned date instead of pushing it: without this the
+     heading refuses to shrink past its longest word and takes the date with it. */
+  .writing-list h3 { min-width: 0; }
   /* Pinned rather than inherited: the row is one primitive and has to read the
      same on the home page and on the archive. Inheriting left the description at
      the archive's 16px while the title stayed at 14px, so a post's description
      outweighed its own title. Rank inside the row comes from weight and ink,
      the way every other row on the site works. */
   .writing-list p { margin-top: var(--s1); color: color-mix(in srgb, var(--ink) 80%, transparent); font-size: var(--text-content); line-height: 1.625; }
-  /* The arrow is the only non-colour signal that the row is a link, so it is
-     never dimmed. */
-  /* Centred against the row, not stretched: as a grid item it filled the full
-     height and drew its glyph at the top, level with the date and away from the
-     title and description that carry the row. */
-  .writing-list b { align-self: center; color: var(--accent); font-weight: 400; }
   .writing-all-link { min-height: var(--hit-target); margin-top: var(--s5); display: inline-flex; align-items: center; color: var(--accent); font-family: var(--font-mono); font-size: var(--text-small); text-decoration: none; }
 
   .email-link { display: inline-block; margin-top: var(--s4); overflow-wrap: anywhere; }
@@ -272,7 +265,7 @@
   .contact-links { margin-top: var(--s6); display: flex; flex-wrap: wrap; gap: var(--s3) var(--s5); font-size: var(--text-content); }
 
   .reference-footer {
-    padding: var(--rule-space-below) 0 var(--s6);
+    padding: var(--section-space) 0 var(--s6);
     display: flex;
     justify-content: space-between;
     gap: var(--s4);
@@ -350,7 +343,6 @@
     .post { padding-top: var(--s7); }
     .writing-index { padding: var(--s7) 0 var(--s8); }
     .writing-index > h1 { font-size: var(--text-title-compact); line-height: 1.12; }
-    .writing-index > .writing-list { margin-top: var(--s6); }
     .post-header { padding-bottom: var(--s7); }
     .post-header h1 { line-height: 1.12; }
     .post-dek { margin-top: var(--s4); font-size: var(--text-lede); }
@@ -358,7 +350,6 @@
     .markdown-content { line-height: 1.75; }
     .markdown-content h2 { margin-top: var(--s7); }
     .markdown-content blockquote { padding-left: var(--s4); }
-    .writing-list > a { grid-template-columns: minmax(0, 1fr) 0.875rem; gap: var(--s3); }
   }
 
   /* Below 400px no key column leaves the seven descriptions on one line, so the

@@ -38,6 +38,10 @@ spacing:
   s7: "48px"
   s8: "64px"
   s9: "96px"
+rhythm:
+  row: "24px"
+  label: "48px, 40px below 672px"
+  section: "72px, 56px below 672px"
 layout:
   content: "656px"
   gutter: "clamp(20px, 5vw, 32px)"
@@ -71,9 +75,9 @@ The system is deliberately small. One column, two faces, six type steps, one acc
 7. Placeholders stay visibly muted; copy is never silently invented to fill them.
 8. The header contains only unnumbered horizontal section navigation and the theme control. It is sticky, single-line, and horizontally scrollable on narrow screens.
 9. Rules separate structural regions only: sticky header, major sections, terminal chrome, and footer. Repeated content rows rely on spacing instead of dividers.
-10. Section navigation and card-shaped rows carry no underline. Their click affordance is the block target itself, plus the accent arrow on writing rows. Underlines stay on links that sit inside running text, where nothing else marks them.
+10. Section navigation and card-shaped rows carry no underline. Their click affordance is the block target itself, and the title moves to `--accent` on hover. Underlines stay on links that sit inside running text, where nothing else marks them.
 11. Standalone controls carry a 44px pointer target in a pseudo-element, so the target grows without moving or resizing anything on screen. Where neighbouring controls sit closer than 44px apart, their zones split the gap instead of overlapping; the binding requirement is SC 2.5.8 at 24px, which spacing satisfies.
-12. A section rule belongs to the section it opens. Space above it is larger than space below it, and the two values are the same for every rule on the page.
+12. Section spacing runs on one step and its multiples: X between peer rows, 2X between a section label and the block it opens, 3X at a section edge. Every rule on the page keeps 3X on both sides.
 
 ## Color and themes
 
@@ -117,7 +121,17 @@ and code, 1.45 for labels and metadata.
 
 The 4px scale is strict. Normal gaps use 12–24px.
 
-Section separation is deliberately asymmetric: **72px above a rule, 40px below it** on desktop, **56/32** below 672px. The rule belongs to the section it opens, not to the gap between two sections, so it sits closer to the heading that follows than to the block it closes. `--rule-space-above` and `--rule-space-below` carry both values, and every rule on the page obeys them — including the two that are not numbered-section boundaries, the hero's edge with section 01 and the footer's top border.
+A section is spaced by one step and its multiples, so grouping reads by distance alone and repeated rows need no dividers:
+
+| Boundary | Token | Desktop | Below 672px |
+|---|---|---|---|
+| Peer row to peer row | `--row-space` (X) | 24px | 24px |
+| Section label to the block it opens | `--label-space` (2X) | 48px | 40px |
+| Section edge, on both sides of a rule | `--section-space` (3X) | 72px | 56px |
+
+The three distances have to stay ordered, because that order is the only thing that says which rows belong together. When the label sat closer to the first entry than the entries sat to each other, `02 work` and the first company read as one block and the remaining companies as loose leftovers. The row step holds on narrow viewports and only the two multiples above it compress; a phone cannot spend 72px on a section edge and still show the section.
+
+Every rule on the page obeys the edge value, including the two that are not numbered-section boundaries: the hero's edge with section 01 and the footer's top border.
 
 Markdown block elements have their UA margins reset, so the flow rule is the only thing setting vertical space inside an article. A leftover browser margin-bottom on a code block is invisible while margins collapse and wrong the moment they do not.
 
@@ -132,11 +146,11 @@ A writing row states its own sizes rather than inheriting them, because it appea
 
 Rows share one structure: title/meta first, description second, and spacing between entries. They do not draw their own rules. Below 672px they stack into one column.
 
-Work headers keep company and role together on the left, with the employment period in muted mono on the right. The header remains a single line at supported widths.
+Work headers keep company and role together on the left, with the employment period in muted mono on the right. The header remains a single line at supported widths. Writing rows take the same header: post title on the left, publication date in muted mono on the right, on the title's first baseline. A long title wraps under the date rather than pushing it.
 
 Contact keeps the primary email first, the résumé download directly below it, and social profiles as the final low-emphasis row.
 
-Writing entries are internal routes, marked with a right arrow rather than an external-link arrow. Publication dates appear in muted mono; technical publication status is not rendered. When `showWritingOnHome` is enabled in `config/features.json`, the home page previews three posts and ends with `read all →`; `/writing` always lists the complete archive. Articles return to that archive with `← all writings`. The archive returns to the home Writing section when it is visible, otherwise to the home page. Post pages reuse the sticky chrome, keep article prose at a `608px` reading measure inside the `656px` shell, and provide 44px targets for writing navigation and the page top.
+Writing entries are internal routes. The whole row is the target, it draws no arrow of its own, and the section keeps one arrow on `read all →`. Publication dates appear in muted mono; technical publication status is not rendered. When `showWritingOnHome` is enabled in `config/features.json`, the home page previews three posts and ends with `read all →`; `/writing` always lists the complete archive. Articles return to that archive with `← all writings`. The archive returns to the home Writing section when it is visible, otherwise to the home page. Post pages reuse the sticky chrome, keep article prose at a `608px` reading measure inside the `656px` shell, and provide 44px targets for writing navigation and the page top.
 
 Writing source files live in `content/writing/*.md`. The filename defines the route slug; frontmatter supplies title, description, status, and optional publication date. Article bodies start at `##`: level-two headings become numbered sections, blockquotes become accent takeaways, and all other Markdown elements inherit the shared article renderer. Raw HTML and per-post presentation are intentionally unavailable so content cannot bypass the design system.
 
@@ -159,6 +173,10 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 
 | Date | Decision | Reason |
 |---|---|---|
+| 2026-08-04 | Section spacing runs on one step and its multiples: 24 / 48 / 72 | The label sat 24px from the first row while the rows sat 44px apart, so a section label read as part of its first entry and the rest of the list read as leftovers |
+| 2026-08-04 | Section edges become symmetric, 72px on both sides of a rule, superseding the 72/40 asymmetry | Once the label needs 48px of clearance below it, 40px above it puts the label closer to the rule that opens the section than to the section itself |
+| 2026-08-04 | The writing row moves its date to the right of the title, on the title's baseline | It is the same row as a work entry — title left, muted mono metadata right — and it was the only list on the site stacking its metadata above the title |
+| 2026-08-04 | Drop the arrow from writing rows, superseding the decision to keep it undimmed | With the date pinned right, two elements competed for the right edge of the row; the block target and the accent hover still mark the link, and `read all →` keeps an arrow in the section |
 | 2026-08-04 | The article title block sits closer to its body than two sections sit to each other | At section spacing the cover read as detached from the article it introduces; the asymmetry stays, the total drops from 129px to 81px |
 | 2026-08-04 | The article section number scales with its heading | Raising the heading to 18px had left the number at 0.56 of it, against the 0.71 it held before |
 | 2026-08-04 | The writing row pins its own type instead of inheriting the surface | The archive renders prose at 16px, so an inherited description outweighed the 14px title of the post it described |
@@ -187,9 +205,9 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 | 2026-07-31 | Give standalone controls a 44px pseudo-element target | The pointer target grows without moving a single visible pixel |
 | 2026-07-31 | Keep navigation and writing rows underline-free | The block target and the accent arrow already mark them; underlines would add noise to a mono row |
 | 2026-07-31 | Remove the article `margin: 0 auto` | Centering the 608px measure inside the 656px shell broke rule 1 by 24px |
-| 2026-07-31 | Stop dimming the writing arrow | It is the only non-colour signal that the row is a link |
+| 2026-07-31 | Stop dimming the writing arrow (superseded 2026-08-04) | It is the only non-colour signal that the row is a link |
 | 2026-07-31 | Resolve the theme in an inline head script | The stored theme was applied after hydration, so a dark visitor got a light first frame |
-| 2026-07-31 | Make section separation asymmetric, 72 above a rule and 40 below | A rule centred in its own whitespace divides two sections equally and belongs to neither; moving it toward the heading it introduces makes it read as that section's opening |
+| 2026-07-31 | Make section separation asymmetric, 72 above a rule and 40 below (superseded 2026-08-04) | A rule centred in its own whitespace divides two sections equally and belongs to neither; moving it toward the heading it introduces makes it read as that section's opening |
 | 2026-07-31 | Apply the same pair to the hero edge and the footer border | They are rules too. Leaving them on the old symmetric spacing would have made two of the seven boundaries read differently |
 | 2026-07-31 | Enforce SC 2.5.8 (24px, AA) and report 44px as AAA | 44px is Level AAA and the Apple guideline, not the standard the site is held to; the audit was failing builds over an enhancement |
 | 2026-07-31 | Keep post status technical and hidden | Publication workflow metadata does not help a visitor scan or read the writing |
