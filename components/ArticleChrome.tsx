@@ -12,7 +12,10 @@ export function ArticleChrome({ path, backHref = "/writing", backLabel = "all wr
     <header className="topline article-topline">
       <nav className="article-nav" aria-label="Writing navigation">
         <Link href={backHref}>← {backLabel}</Link>
-        <span>{path ? `writing / ${path}` : "writing"}</span>
+        {/* The archive already states its own name in the h1 directly below, so
+            a breadcrumb there would print the same word twice. Only an article
+            needs the trail, to say which section it sits in. */}
+        {path ? <span>writing / {path}</span> : null}
       </nav>
       <SiteChrome />
     </header>

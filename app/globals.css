@@ -107,9 +107,13 @@
     align-items: baseline;
     gap: var(--s2);
     font-family: var(--font-mono);
-    font-size: var(--text-content);
+    /* An article sets prose at --text-body, so a section heading has to sit
+       above it. On the home page every row is --text-content and the same mono
+       label reads as a peer; here it would read as a caption for the paragraph
+       it is meant to govern. */
+    font-size: var(--text-lede);
     font-weight: 400;
-    line-height: 1.25rem;
+    line-height: 1.45;
     letter-spacing: 0.025em;
   }
   .markdown-content h2:first-child { margin-top: 0; }
@@ -119,12 +123,17 @@
     font-size: var(--text-tiny);
   }
   .markdown-content h3 { margin: var(--s7) 0 var(--s4); font-size: var(--text-body); font-weight: 600; line-height: 1.4; }
-  .markdown-content p + p { margin-top: var(--s5); }
-  .markdown-content :is(ul, ol) { margin: var(--s5) 0 0; padding-left: var(--s6); }
+  /* One flow rule for the whole article instead of per-element top margins.
+     `p + p` used to carry the rhythm, which meant a paragraph following a list,
+     a code block or a table inherited no spacing at all and butted straight
+     against it. Every block now separates from its predecessor; the elements
+     below only widen that gap where they need more air. */
+  .markdown-content > * + * { margin-top: var(--s5); }
+  .markdown-content :is(ul, ol) { padding-left: var(--s6); }
   .markdown-content li + li { margin-top: var(--s2); }
   .markdown-content li > :is(ul, ol) { margin-top: var(--s2); }
   .markdown-content blockquote {
-    margin: var(--s6) 0 0;
+    margin-top: var(--s6);
     padding-left: var(--s5);
     color: color-mix(in srgb, var(--ink) 88%, transparent);
     border-left: 2px solid var(--accent);
@@ -133,10 +142,12 @@
     line-height: 1.65;
   }
   .markdown-content blockquote p { margin: 0; }
+  /* A separator keeps equal air on both sides, so this one overrides the flow
+     rule in both directions rather than only above. */
   .markdown-content hr { margin: var(--s8) 0; border: 0; border-top: 1px solid color-mix(in srgb, var(--rule) 70%, transparent); }
   .markdown-content img { margin: var(--s6) auto 0; border: 1px solid var(--rule); }
   .markdown-content :not(pre) > code { padding: 0.1em 0.3em; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-content); }
-  .markdown-content pre { margin: var(--s6) 0 0; overflow-x: auto; padding: var(--s4); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-content); line-height: 1.65; }
+  .markdown-content pre { margin-top: var(--s6); overflow-x: auto; padding: var(--s4); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-content); line-height: 1.65; }
   .markdown-content pre code { font: inherit; }
   .markdown-content table { width: 100%; margin-top: var(--s6); display: block; overflow-x: auto; border-collapse: collapse; font-size: var(--text-content); }
   .markdown-content th, .markdown-content td { padding: var(--s2) var(--s3); border-bottom: 1px solid var(--rule); text-align: left; }
@@ -149,7 +160,9 @@
   .post-empty a { margin-top: var(--s6); font-family: var(--font-mono); font-size: var(--text-small); }
 
   .writing-index { padding: var(--s8) 0 var(--s9); }
-  .writing-index > h1 { font-family: var(--font-mono); font-size: var(--text-title); font-weight: 500; line-height: 1.08; letter-spacing: -0.035em; }
+  /* Same face and weight as the other two page titles; the archive had been the
+     only large monospace heading on the site. */
+  .writing-index > h1 { font-size: var(--text-title); font-weight: 600; line-height: 1.08; letter-spacing: -0.035em; }
   .writing-index > .writing-list { margin-top: var(--s7); }
 }
 
@@ -229,10 +242,18 @@
     text-decoration: none;
   }
   .writing-list time { display: block; margin-bottom: var(--s2); color: var(--muted); font-family: var(--font-mono); font-size: var(--text-small); line-height: 1.45; }
-  .writing-list p { margin-top: var(--s1); color: color-mix(in srgb, var(--ink) 80%, transparent); line-height: 1.625; }
+  /* Pinned rather than inherited: the row is one primitive and has to read the
+     same on the home page and on the archive. Inheriting left the description at
+     the archive's 16px while the title stayed at 14px, so a post's description
+     outweighed its own title. Rank inside the row comes from weight and ink,
+     the way every other row on the site works. */
+  .writing-list p { margin-top: var(--s1); color: color-mix(in srgb, var(--ink) 80%, transparent); font-size: var(--text-content); line-height: 1.625; }
   /* The arrow is the only non-colour signal that the row is a link, so it is
      never dimmed. */
-  .writing-list b { color: var(--accent); font-weight: 400; }
+  /* Centred against the row, not stretched: as a grid item it filled the full
+     height and drew its glyph at the top, level with the date and away from the
+     title and description that carry the row. */
+  .writing-list b { align-self: center; color: var(--accent); font-weight: 400; }
   .writing-all-link { min-height: var(--hit-target); margin-top: var(--s5); display: inline-flex; align-items: center; color: var(--accent); font-family: var(--font-mono); font-size: var(--text-small); text-decoration: none; }
 
   .email-link { display: inline-block; margin-top: var(--s4); overflow-wrap: anywhere; }

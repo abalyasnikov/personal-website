@@ -92,7 +92,7 @@ Six steps, each one distinguishable: **44 / 18 / 16 / 14 / 11 / 10**. Every one 
 | Token | Size | Used by |
 |---|---|---|
 | `--text-title` | clamp 36–44px | hero name, writing index, post title, error title |
-| `--text-lede` | 18px | post dek, article blockquote |
+| `--text-lede` | 18px | post dek, article section heading, article blockquote |
 | `--text-body` | 16px | article prose, hero identity line |
 | `--text-content` | 14px | section copy, terminal, contact links, code blocks |
 | `--text-small` | 11px | navigation, publication dates, metadata, footer |
@@ -102,11 +102,29 @@ The title is a clamp, not a step, so it scales with the viewport. `--text-title-
 
 Site body is 16px and compact section copy is 14px. The home page is compact copy; article pages use site body. That is the only place two content sizes coexist, and it is intentional.
 
+A section heading sits one step above the copy it governs. On the home page that
+is 14px mono over 14px rows, where the heading reads as a peer label. In an
+article, prose is 16px, so the heading takes 18px: at 14px it was smaller than
+the paragraphs beneath it and read as their caption. The two surfaces are allowed
+to differ here because the article has a different job.
+
+Line height follows the role, not the size: 1.8 for prose, 1.65 for compact copy
+and code, 1.45 for labels and metadata.
+
 ## Layout rhythm
 
 The 4px scale is strict. Normal gaps use 12–24px.
 
 Section separation is deliberately asymmetric: **72px above a rule, 40px below it** on desktop, **56/32** below 672px. The rule belongs to the section it opens, not to the gap between two sections, so it sits closer to the heading that follows than to the block it closes. `--rule-space-above` and `--rule-space-below` carry both values, and every rule on the page obeys them — including the two that are not numbered-section boundaries, the hero's edge with section 01 and the footer's top border.
+
+Article bodies run on one flow rule: every block separates from its predecessor
+by 24px, and only the elements that need more air widen it — 64px above a section
+heading, 32px above a code block, table or image, 64px on both sides of a rule.
+Spacing is never attached to a specific pair of tags. The earlier rule keyed on
+two adjacent paragraphs, so a paragraph following a list or a code block
+inherited nothing and butted straight against it.
+
+A writing row states its own sizes rather than inheriting them, because it appears on two surfaces with different body sizes and has to read the same on both. Rank inside the row comes from weight and ink.
 
 Rows share one structure: title/meta first, description second, and spacing between entries. They do not draw their own rules. Below 672px they stack into one column.
 
@@ -137,6 +155,10 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 
 | Date | Decision | Reason |
 |---|---|---|
+| 2026-08-04 | The writing row pins its own type instead of inheriting the surface | The archive renders prose at 16px, so an inherited description outweighed the 14px title of the post it described |
+| 2026-08-04 | Article section headings take 18px, one step above article prose | At 14px the heading was smaller than the paragraphs it governed and read as their caption |
+| 2026-08-04 | Writing index title moves to the sans face | It was the only large monospace heading on the site, while the other two page titles were sans |
+| 2026-08-04 | Article spacing runs on one flow rule instead of per-pair margins | Keying on two adjacent paragraphs left lists and code blocks with no gap beneath them |
 | 2026-07-30 | Rebuild on one narrow column with numbered sections | The earlier editorial direction spread attention across surfaces that carried no information |
 | 2026-07-30 | Keep accent color and treatment as live axes | These are the two identity decisions still worth testing |
 | 2026-07-30 | Preserve the previous demo separately | Baseline work must not destroy the earlier exploration |

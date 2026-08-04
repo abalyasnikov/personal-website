@@ -130,13 +130,31 @@ async function checkThemeToggle(browser) {
 
 async function prepareFocusAudit(page) {
   return page.evaluate((selector) => {
-    const candidates = [...document.querySelectorAll(selector)].filter((element) => {
-      const style = getComputedStyle(element);
-      const bounds = element.getBoundingClientRect();
-      return element.tabIndex >= 0 && !element.closest("[inert]") &&
-        style.display !== "none" && style.visibility !== "hidden" &&
-        bounds.width > 0 && bounds.height > 0;
-    });
+    // A container that scrolls is keyboard focusable in Chromium, because a
+    // keyboard user has to be able to scroll it (WCAG 2.1.1). Code blocks and
+    // wide tables in an article are exactly that, so they are real focus stops
+    // and belong in the expected order rather than cutting the walk short.
+    const scrollables = [...document.querySelectorAll("pre, table, .header-nav, .article-nav")]
+      .filter((element) => {
+        const style = getComputedStyle(element);
+        return /auto|scroll/.test(style.overflowX + style.overflowY) &&
+          (element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight);
+      });
+
+    // Chromium reports tabIndex -1 for a scroll container even while giving it
+    // a tab stop, so the tabIndex floor applies only to the explicit selector.
+    const scrollableSet = new Set(scrollables);
+    const focusable = new Set([...document.querySelectorAll(selector), ...scrollables]);
+    const candidates = [...document.querySelectorAll("*")]
+      .filter((element) => focusable.has(element))
+      .filter((element) => {
+        const style = getComputedStyle(element);
+        const bounds = element.getBoundingClientRect();
+        return (scrollableSet.has(element) || element.tabIndex >= 0) &&
+          !element.closest("[inert]") &&
+          style.display !== "none" && style.visibility !== "hidden" &&
+          bounds.width > 0 && bounds.height > 0;
+      });
     return candidates.map((element, index) => {
       element.dataset.auditFocusIndex = String(index);
       return {
