@@ -89,7 +89,16 @@ export default function Home() {
         <div className="plain-list">
           {building.map((item) => (
             <div className="plain-row" key={item.name}>
-              <div><h3>{item.name}</h3><span>{item.meta}</span></div>
+              <div>
+                <h3>
+                  {item.href ? (
+                    <a href={item.href} target="_blank" rel="noreferrer">{item.name}</a>
+                  ) : (
+                    item.name
+                  )}
+                </h3>
+                <span>{item.meta}</span>
+              </div>
               <p>{item.description}</p>
             </div>
           ))}

@@ -49,6 +49,13 @@ export const work: WorkEntry[] = [
 
 export const building: IndexEntry[] = [
   {
+    name: "Product OS",
+    href: "https://github.com/abalyasnikov/product-os",
+    meta: "Open source",
+    description:
+      "Product decision infrastructure for agentic teams. Customer evidence becomes bets, readable PRDs and measured outcomes, with the decision trail kept in Git.",
+  },
+  {
     name: "ML trading systems",
     meta: "Prediction markets / Solana",
     description: "Data pipelines, feature engineering, backtesting and live execution, run end to end.",

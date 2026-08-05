@@ -173,6 +173,7 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 
 | Date | Decision | Reason |
 |---|---|---|
+| 2026-08-05 | A building entry may link to its source, starting with Product OS | Building rows already share the investing row primitive, so the optional title link is the same pattern in a third place rather than a new one |
 | 2026-08-04 | The step cadence tightens to 1.5 seconds | At two seconds the seven-step pass ran past the attention a hero block gets; the shorter beat keeps every step readable and lands the whole run in about eleven seconds |
 | 2026-08-04 | A work entry may link to the company, starting with Zerion | The name is the natural anchor, and investing rows already carry the same underlined title link, so it needs no new pattern |
 | 2026-08-04 | The run keeps its trace and rests at `decide` as a completed cycle | Dropping the marks with the loop threw the story out with the repetition; the pass now executes visibly — blue step, accumulating ✓ — and ends with six marks and the final step held in blue |
