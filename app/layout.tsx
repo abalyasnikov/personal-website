@@ -88,7 +88,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
         />
-        <script defer data-domain="balyasnikov.com" src="https://plausible.io/js/script.js" />
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="859935e8-90f0-4422-8570-344edf288854"
+        />
       </head>
       <body>{children}</body>
     </html>
