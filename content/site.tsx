@@ -3,6 +3,7 @@ export type WorkEntry = {
   role: string;
   date: string;
   body: React.ReactNode;
+  href?: string;
 };
 
 export type IndexEntry = {
@@ -15,6 +16,7 @@ export type IndexEntry = {
 export const work: WorkEntry[] = [
   {
     name: "Zerion",
+    href: "https://zerion.io",
     role: "Founding Head of Product",
     date: "2018—2026",
     body: (

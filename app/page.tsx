@@ -67,7 +67,16 @@ export default function Home() {
           {work.map((entry) => (
             <article key={entry.name}>
               <header>
-                <div><h3>{entry.name}</h3><p>{entry.role}</p></div>
+                <div>
+                  <h3>
+                    {entry.href ? (
+                      <a href={entry.href} target="_blank" rel="noreferrer">{entry.name}</a>
+                    ) : (
+                      entry.name
+                    )}
+                  </h3>
+                  <p>{entry.role}</p>
+                </div>
                 <span className="work-date">{entry.date}</span>
               </header>
               <div>{entry.body}</div>

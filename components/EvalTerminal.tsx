@@ -17,7 +17,7 @@ const typeMs = 28;
 const typeDelayMs = 300;
 const streamMs = 110;
 const traceDelayMs = 800;
-const stepMs = 2000;
+const stepMs = 1500;
 
 // The exported page carries the settled state — a completed cycle resting at
 // `decide` — so the terminal reads complete without JavaScript. The inline
