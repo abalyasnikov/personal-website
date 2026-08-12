@@ -6,6 +6,8 @@ date: 2026-08-07
 order: 4
 ---
 
+![A magnifying glass over a calm flat line, revealing jagged spikes inside the lens](/og/aggregate-metric-said-no-problem.jpg)
+
 The dashboard said we did not have a problem. Users kept writing in to say we did. Both were looking at the same product, and it took me longer than I would like to admit to accept that the dashboard was the one that was wrong.
 
 This is the story of that disagreement: a swap failure rate that looked like statistical noise, a segment failing at 15% underneath it, and a four-word edit in review that ended up mattering more than the fix itself. The case comes from real Zerion Wallet work, with private data, internal links, and personal names removed.

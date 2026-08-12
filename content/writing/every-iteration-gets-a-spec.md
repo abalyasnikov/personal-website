@@ -6,6 +6,8 @@ date: 2026-08-12
 order: 2
 ---
 
+![A blue toy locomotive pulling document cars tagged v1 through v5](/og/every-iteration-gets-a-spec.jpg)
+
 For a while my specs lived in a folder called specs. Every feature added a Markdown file, every file was written for the moment it served, and the folder grew in whatever order the work happened. Soon it could not answer a single useful question. Which of these decisions still stand? Which version of the strategy does this file describe? What was tried and abandoned? I could not read the history out of it, and my agents could not either: every new session started from a blank slate inside a repository that had already learned the answers.
 
 Vibe coding made this worse, because the volume went up. More ideas get tried in a week than a folder of loose files can hold. So the folder became a system: versioned specs with their own implementation history, and a pair of skills that write and review them. It is the base layer under everything I build with agents, including the interface pipeline in [How I build interfaces with coding agents](/writing/interfaces-with-coding-agents).

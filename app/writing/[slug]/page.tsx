@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -24,7 +26,9 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 
   const title = `${post.title} — Andrey Balyasnikov`;
   const url = `/writing/${slug}`;
-  const image = { url: "/og.png", width: 1200, height: 630, alt: "Andrey Balyasnikov — product lead" };
+  const image = fs.existsSync(path.join(process.cwd(), "public", "og", `${slug}.jpg`))
+    ? { url: `/og/${slug}.jpg`, width: 1200, height: 630, alt: `Cover illustration: ${post.title}` }
+    : { url: "/og.png", width: 1200, height: 630, alt: "Andrey Balyasnikov — product lead" };
 
   return {
     title,

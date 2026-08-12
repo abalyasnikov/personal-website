@@ -6,6 +6,8 @@ date: 2026-08-03
 order: 3
 ---
 
+![A person conducting a semicircle of robot helpers holding documents, charts, and gears](/og/product-work-around-coding-agents.jpg)
+
 A PRD feels finished the moment the Notion page is shared. From then on the document ages quietly while the real decisions live in comments, calls, and someone's memory. That is how most product organizations run, and it is how we ran at Zerion, right up until coding agents made the mismatch intolerable: an agent could reason across an entire codebase, while the reasoning behind the product sat in pages someone had to find and paste by hand.
 
 So I made a small move rather than a grand one. I put our product documents in Git, where the agents already worked. Git turned out to change more than storage: it became a shared product interface for PMs, reviewers, developers, and their agents.
