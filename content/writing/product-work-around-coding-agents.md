@@ -6,11 +6,11 @@ date: 2026-08-03
 order: 1
 ---
 
-A PRD feels finished the moment the Notion page is shared. From then on the document ages quietly while the real decisions live in comments, calls, and someone's memory. That is how most product organisations run, and it is how we ran at Zerion, right up until coding agents made the mismatch intolerable: an agent could reason across an entire codebase, while the reasoning behind the product sat in pages someone had to find and paste by hand.
+A PRD feels finished the moment the Notion page is shared. From then on the document ages quietly while the real decisions live in comments, calls, and someone's memory. That is how most product organizations run, and it is how we ran at Zerion, right up until coding agents made the mismatch intolerable: an agent could reason across an entire codebase, while the reasoning behind the product sat in pages someone had to find and paste by hand.
 
 So I made a small move rather than a grand one. I put our product documents in Git, where the agents already worked. Git turned out to change more than storage: it became a shared product interface for PMs, reviewers, developers, and their agents.
 
-Over time the working model grew into [Product OS](https://github.com/abalyasnikov/product-os), an open-source reference implementation. It came out of my experience at Zerion; it is not an official Zerion product or methodology.
+Over time the operating model grew into [Product OS](https://github.com/abalyasnikov/product-os), an open-source reference implementation. It came out of my experience at Zerion; it is not an official Zerion product or methodology.
 
 This is a field report on what held up, what broke, and what I would build next. Examples come from real Zerion Wallet work, with private data, internal links, and personal names removed.
 
@@ -68,6 +68,8 @@ Strategy shaped the bet rather than decorating it. Removing a duplicate confirma
 
 Shipping all five would still not prove the trading experience improved. The Initiative owns that aggregate claim; each PRD owns evidence that its own barrier is gone. The [worked example](https://github.com/abalyasnikov/product-os/tree/main/examples/best-in-class-trading-experience) keeps that chain intact, from the strategy file down to individual requirements, and for one of the five, all the way through to a measured result and the decision that followed it.
 
+Most bets are smaller than this one. The repository carries [a short-path example](https://github.com/abalyasnikov/product-os/tree/main/examples/receipt-follow-up) too: four Signals, one Opportunity, one PRD, and no Initiative at all.
+
 ## The metric that said there was no problem
 
 Auto-slippage is the bet I keep coming back to, because almost everything I believe about evidence is in it.
@@ -83,7 +85,7 @@ The part that shaped the operating model came from review. Widening the toleranc
 + Fewer failed native swaps/bridges while maintaining execution quality
 ```
 
-Four words, plus two guardrail numbers in the same commit that made them enforceable: execution price against quote, and revenue per trade. The failure metric had to fall while both held. The implementation kept changing after that; the contract did not. I unpack the full investigation, including two failure modes unrelated to slippage, in [When the aggregate metric says there is no problem](/writing/aggregate-metric-said-no-problem).
+Four words, plus two guardrail numbers in the same commit that made them enforceable: execution price against quote, and revenue per trade. The failure metric had to fall while both held. The implementation kept changing after that; the Outcome Contract did not. I unpack the full investigation, including two failure modes unrelated to slippage, in [When the aggregate metric says there is no problem](/writing/aggregate-metric-said-no-problem).
 
 ## A PRD short enough to be read
 
@@ -93,7 +95,7 @@ A PRD covered the user problem and use cases, the business reason to act now, th
 
 Architecture, algorithms, API contracts, migrations, and rollout mechanics moved into an engineering-owned Implementation Plan living in the code repository. The auto-slippage classification rules, coefficients, and fallback algorithms went with them: all important, none of them the durable product decision. They were engineering hypotheses wearing product clothing. That split kept the PRD readable, and it stopped an implementation detail from quietly redefining the product outcome.
 
-Shortening a document only works if what it drops stays reachable, and that is the objection I would raise at someone showing me this format: cut the PRD down and the engineer gets less context, not more. The answer is that evidence moves rather than disappears. Signals and Patterns stay linked to the PRD, so anyone (or any agent) reading a requirement can follow it back to the support conversation that produced it. The document gets shorter. The trail behind it does not get thinner.
+Shortening a document only works if what it drops stays reachable, and that is the objection I would raise with someone showing me this format: cut the PRD down and the engineer gets less context, not more. The answer is that evidence moves rather than disappears. Signals and Patterns stay linked to the PRD, so anyone (or any agent) reading a requirement can follow it back to the support conversation that produced it. The [evidence behind auto-slippage](https://github.com/abalyasnikov/product-os/blob/main/examples/best-in-class-trading-experience/product/signals/slippage-failures-hide-in-the-aggregate.md) sits in the worked example, next to the bet it justified. The document gets shorter. The trail behind it does not get thinner.
 
 Product safety bounds stayed in the PRD, though, and that distinction took me a while to get right. "Auto never exceeds 10%, manual caps at 25%" is a promise to the user. The rule deciding where a specific trade lands inside those bounds is engineering's business.
 
@@ -121,17 +123,17 @@ Three judgments stay human. Whether to pursue an opportunity. Whether to approve
 
 The operating model worked. Its interface did not work equally well for everyone.
 
-GitHub is a technical tool. PMs already living in coding agents adapted in days. Designers and other collaborators needed help, and I gave it to them through Loom walkthroughs, live demos, and time in Claude Cowork and Claude Code. The curve got shorter. It never went away.
+GitHub is a technical tool. PMs already living in coding agents adapted in days. Designers and other collaborators needed help: Loom walkthroughs, live demos, and time in Claude Cowork and Claude Code. The curve got shorter. It never went away.
 
-That is the trade-off I would name honestly to anyone considering this: you get a review system nobody has to build and a context store agents can read, and you pay for it with an interface that excludes part of your team by default.
+That is the trade-off: you get a review system nobody has to build and a context store agents can read, and you pay for it with an interface that excludes part of your team by default.
 
-It also convinced me the agent, not GitHub, should be the front door. A PM should be able to ask "what decision needs my attention?" or "interrogate me before I draft this PRD" without learning an artifact graph or hand-editing YAML.
+It also convinced me the agent, not GitHub, should be the front door. A PM should be able to ask "what decision needs my attention?" or "interrogate me before I draft this PRD" without learning an artifact graph or hand-editing YAML. That front door exists now: the list of decisions waiting on a human is computed from the repository on request and written nowhere, and a PRD draft starts with the interrogation, not the template.
 
-## Marketing is the edge I would build next
+## Marketing is the next edge
 
-Marketing is the function I brought into the thinking but never into the system, and that gap is the most interesting problem I left on the table.
+Marketing came into the thinking but never into the system, and that is the most interesting problem this model has not solved yet.
 
-The thinking part worked. Marketing joined discovery early, and go-to-market was a question inside the PRD rather than a launch checklist bolted on at the end. Who discovers this, what promise makes them try it, which adoption action counts: those shaped what we built, and more than once changed it. Deciding distribution while the product is still moveable is worth far more than deciding it after the build is frozen.
+The thinking part worked. Marketing joined discovery early, and go-to-market was a question inside the PRD rather than a launch checklist bolted on at the end. Who discovers this, what promise makes them try it, which adoption action counts: those shaped what we built, and more than once changed it. Deciding distribution while the product is still movable is worth far more than deciding it after the build is frozen.
 
 What never merged was the working surface. Marketing lived in its own Notion and its own boards, so the launch promise existed in two places maintained by two sets of hands. Engineering never had that problem, because engineering already lived in Git and already worked with agents that read it.
 
@@ -143,7 +145,7 @@ I should be precise about which parts of this are load-bearing.
 
 The system I ran at Zerion was real. It handled live Linear, Notion, Mixpanel, Metabase, and support workflows, and the examples in this article come out of that work.
 
-The Auto-slippage contract is where that precision cost me something. Its primary metric closed convincingly. The guardrails it had been given did not, so the contract's own rule pointed at finishing the evidence rather than scaling, and that is not the verdict I would have written for myself.
+The Auto-slippage contract is where that precision cost me something. Its primary metric closed convincingly. The guardrails it had been given did not, so the contract's own rule pointed at finishing the evidence rather than scaling, and that is not the verdict I would have written for myself. The contract did its job: it outranked the person who wrote it.
 
 ## The shift is bigger than moving Markdown into Git
 
