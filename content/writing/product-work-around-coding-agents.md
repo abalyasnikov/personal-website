@@ -3,7 +3,7 @@ title: How I rebuilt product work around coding agents
 description: Company strategy, evidence, product bets, PRDs, delivery and learning in one system that people and agents both read.
 status: published
 date: 2026-08-03
-order: 1
+order: 3
 ---
 
 A PRD feels finished the moment the Notion page is shared. From then on the document ages quietly while the real decisions live in comments, calls, and someone's memory. That is how most product organizations run, and it is how we ran at Zerion, right up until coding agents made the mismatch intolerable: an agent could reason across an entire codebase, while the reasoning behind the product sat in pages someone had to find and paste by hand.

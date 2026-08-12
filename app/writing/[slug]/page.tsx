@@ -3,14 +3,17 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArticleChrome } from "@/components/ArticleChrome";
 import { MarkdownArticle } from "@/components/MarkdownArticle";
-import { formatPostDate, getPost, getPublishedPosts } from "@/lib/posts";
+import { formatPostDate, getAllPosts, getPost, getPublishedPosts } from "@/lib/posts";
 
 type PostPageProps = {
   params: Promise<{ slug: string }>;
 };
 
 export function generateStaticParams() {
-  return getPublishedPosts().map((post) => ({ slug: post.slug }));
+  // Dev also renders drafts: the exported param list is the only set of slugs
+  // Next will serve under `output: "export"`, even from the dev server.
+  const posts = process.env.NODE_ENV === "development" ? getAllPosts() : getPublishedPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {

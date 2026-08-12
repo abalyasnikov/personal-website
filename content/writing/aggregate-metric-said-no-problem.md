@@ -3,7 +3,7 @@ title: When the aggregate metric says there is no problem
 description: How segmentation found a 15% failure rate inside a metric that looked like noise, and what kept the fix honest.
 status: published
 date: 2026-08-07
-order: 2
+order: 4
 ---
 
 The dashboard said we did not have a problem. Users kept writing in to say we did. Both were looking at the same product, and it took me longer than I would like to admit to accept that the dashboard was the one that was wrong.
