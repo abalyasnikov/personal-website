@@ -69,9 +69,6 @@ Use these in order:
 
 ## Known open work
 
-- `content/writing/` holds one published post and three drafts. The drafts are
-  placeholders from the build-out of the writing system; they are not exported
-  and are not visible to anyone. Delete them once they have served their purpose.
 - Writing is live: `showWritingOnHome` in `config/features.json` is on, so the
   home page carries a Writing section and its navigation entry, and the section
   numbering runs to `06 contact`. Turning the flag off hides both and shifts the
