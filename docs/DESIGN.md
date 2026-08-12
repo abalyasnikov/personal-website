@@ -70,7 +70,7 @@ The system is deliberately small. One column, two faces, six type steps, one acc
 2. Inter carries headings and prose. JetBrains Mono is restricted to navigation, terminal, metadata, and controls. Those are the only two faces the site loads.
 3. Hierarchy comes from spacing, weight, section rules, and numbering—not extra card surfaces.
 4. Every interactive hover and focus state uses `--accent`. Focus must remain visible.
-5. Investing uses the same stacked row primitive as building. No one-off grid or spacing model.
+5. Stacked list sections share one row primitive. No one-off grid or spacing model.
 6. Motion is functional and restrained. The terminal performs its run once per pageview and rests at `decide`; after it, the pulsing status dot and the resting cursor blink are the only ambient loops. `prefers-reduced-motion` removes them all.
 7. Placeholders stay visibly muted; copy is never silently invented to fill them.
 8. The header contains only unnumbered horizontal section navigation and the theme control. It is sticky, single-line, and horizontally scrollable on narrow screens.
@@ -173,6 +173,7 @@ Change a token in `styles/tokens.css` and this file together. A new raw color, t
 
 | Date | Decision | Reason |
 |---|---|---|
+| 2026-08-12 | The angel investing section leaves the page | Owner call to pull it for now; git history keeps the content, and rule 5 loses its section-specific wording |
 | 2026-08-05 | A building entry may link to its source, starting with Product OS | Building rows already share the investing row primitive, so the optional title link is the same pattern in a third place rather than a new one |
 | 2026-08-04 | The step cadence tightens to 1.5 seconds | At two seconds the seven-step pass ran past the attention a hero block gets; the shorter beat keeps every step readable and lands the whole run in about eleven seconds |
 | 2026-08-04 | A work entry may link to the company, starting with Zerion | The name is the natural anchor, and investing rows already carry the same underlined title link, so it needs no new pattern |

@@ -30,7 +30,7 @@ Use these in order:
 | `components/ArticleChrome.tsx` | Shared sticky chrome for writing pages |
 | `components/WritingList.tsx` | Shared dated post list |
 | `components/MarkdownArticle.tsx` | Design-system renderer for Markdown elements |
-| `content/site.tsx` | Work, building, and investing content |
+| `content/site.tsx` | Work and building content |
 | `content/writing/*.md` | Blog post source files |
 | `lib/posts.ts` | Post discovery, frontmatter validation, ordering, and date formatting |
 | `styles/tokens.css` | Runtime implementation of design tokens |
@@ -71,8 +71,11 @@ Use these in order:
 
 - Writing is live: `showWritingOnHome` in `config/features.json` is on, so the
   home page carries a Writing section and its navigation entry, and the section
-  numbering runs to `06 contact`. Turning the flag off hides both and shifts the
+  numbering runs to `05 contact`. Turning the flag off hides both and shifts the
   numbering back; the archive and article routes stay reachable either way.
+- Angel investing is off the page: the section and its `content/site.tsx` data
+  were removed on 2026-08-12 at Andrey's request, recoverable from git history.
+  Do not reintroduce it without his ask.
 - `public/og.png` is generated, not hand-edited. Its description is a separate
   approved line from the hero and is set at 32px, where it fits two lines with
   7px to spare in the 640px column. Editing that line means re-measuring the

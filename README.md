@@ -46,7 +46,7 @@ four viewport widths, theme-flash on first paint, and keyboard focus order. Set
 | `app/writing/page.tsx` | Complete writing index |
 | `app/writing/[slug]/` | Static post route |
 | `components/` | Writing list, article chrome, Markdown renderer, theme control |
-| `content/site.tsx` | Work, building and investing entries |
+| `content/site.tsx` | Work and building entries |
 | `content/writing/*.md` | Posts |
 | `lib/posts.ts` | Post discovery, frontmatter validation, ordering |
 | `styles/tokens.css` | Design tokens |

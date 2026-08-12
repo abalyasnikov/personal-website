@@ -66,27 +66,3 @@ export const building: IndexEntry[] = [
     description: "A proactive AI second brain that captures links, meetings, notes and messages into structured memory, then uses that context to run useful skills like Telegram digests, portfolio sync, reminders, reviews and contextual search.",
   },
 ];
-
-export const investing: IndexEntry[] = [
-  {
-    name: "Alliance DAO",
-    href: "https://alliance.xyz",
-    description: "Web3 accelerator and founder community. Invested when it was still DeFi Alliance.",
-  },
-  { name: "zkSync", href: "https://zksync.io", description: "ZK rollup scaling Ethereum, built by Matter Labs." },
-  {
-    name: "Socket",
-    href: "https://socket.tech",
-    description: "Chain abstraction. One API to read state and write transactions across 20+ chains.",
-  },
-  {
-    name: "CoW Swap",
-    href: "https://cow.fi",
-    description: "A DEX that settles through batch auctions and coincidence of wants, protecting orders from MEV.",
-  },
-  {
-    name: "Align Labs",
-    href: "https://alignlabs.dev",
-    description: "Financial infrastructure for stablecoins, linking cross-border payments to stablecoin and fiat rails.",
-  },
-];

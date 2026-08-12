@@ -4,7 +4,7 @@ import { EvalTerminal } from "@/components/EvalTerminal";
 import { SiteChrome } from "@/components/SiteChrome";
 import { WritingList } from "@/components/WritingList";
 import features from "@/config/features.json";
-import { building, investing, work } from "@/content/site";
+import { building, work } from "@/content/site";
 import { getPublishedPosts } from "@/lib/posts";
 
 const nav = [
@@ -12,7 +12,6 @@ const nav = [
   "work",
   "building",
   ...(features.showWritingOnHome ? ["writing"] : []),
-  "investing",
   "contact",
 ];
 
@@ -30,8 +29,7 @@ function Section({ number, id, title, children }: { number: string; id: string; 
 
 export default function Home() {
   const posts = features.showWritingOnHome ? getPublishedPosts() : [];
-  const investingNumber = features.showWritingOnHome ? "05" : "04";
-  const contactNumber = features.showWritingOnHome ? "06" : "05";
+  const contactNumber = features.showWritingOnHome ? "05" : "04";
 
   return (
     <main className="site-shell" id="top">
@@ -111,23 +109,6 @@ export default function Home() {
           <Link className="writing-all-link" href="/writing">read all →</Link>
         </Section>
       ) : null}
-
-      <Section number={investingNumber} id="investing" title="angel investing">
-        <div className="plain-list">
-          {investing.map((item) => (
-            <div className="plain-row" key={item.name}>
-              <h3>
-                {item.href ? (
-                  <a href={item.href} target="_blank" rel="noreferrer">{item.name}</a>
-                ) : (
-                  item.name
-                )}
-              </h3>
-              <p>{item.description}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
 
       <Section number={contactNumber} id="contact" title="contact">
         <p className="lede">Currently looking for product leadership or senior hands-on roles.</p>
