@@ -1,13 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
+import { personSchema } from "@/lib/schema";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 import "@/styles/tokens.css";
 import "./globals.css";
 
-const siteUrl = "https://balyasnikov.com";
-const siteTitle = "Andrey Balyasnikov — Product Lead";
-const siteDescription =
-  "Product lead building consumer products and developer platforms across fintech and crypto.";
 // The share card carries its own line, so the image and the card text match.
 const cardDescription = "Building consumer products and developer platforms in fintech and crypto.";
 
@@ -34,38 +32,26 @@ const evalScript = `(function () {
   } catch (e) {}
 })();`;
 
-const personSchema = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: "Andrey Balyasnikov",
-  url: siteUrl,
-  image: `${siteUrl}/profile.webp`,
-  jobTitle: "Product Lead",
-  sameAs: [
-    "https://www.linkedin.com/in/abalyasnikov",
-    "https://github.com/abalyasnikov",
-    "https://x.com/A_Balyasnikov",
-    "https://t.me/abalyasnikov",
-  ],
-};
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: siteTitle,
-  description: siteDescription,
-  alternates: { canonical: "/" },
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": [{ url: "/feed.xml", title: `${SITE_NAME} — writing` }] },
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "Andrey Balyasnikov",
-    title: siteTitle,
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
     description: cardDescription,
     url: "/",
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "Andrey Balyasnikov — product lead" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: siteTitle,
+    title: SITE_TITLE,
     description: cardDescription,
     images: [{ url: "/og.png", alt: "Andrey Balyasnikov — product lead" }],
   },

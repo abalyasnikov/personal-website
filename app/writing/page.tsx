@@ -3,10 +3,11 @@ import { ArticleChrome } from "@/components/ArticleChrome";
 import { WritingList } from "@/components/WritingList";
 import features from "@/config/features.json";
 import { getPublishedPosts } from "@/lib/posts";
+import { WRITING_DESCRIPTION } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Writing — Andrey Balyasnikov",
-  description: "Notes on products, infrastructure and applied machine learning.",
+  description: WRITING_DESCRIPTION,
   alternates: { canonical: "/writing" },
 };
 

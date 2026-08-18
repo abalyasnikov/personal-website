@@ -6,10 +6,19 @@ import Link from "next/link";
 import { ArticleChrome } from "@/components/ArticleChrome";
 import { MarkdownArticle } from "@/components/MarkdownArticle";
 import { formatPostDate, getAllPosts, getPost, getPublishedPosts } from "@/lib/posts";
+import { buildPostSchema } from "@/lib/schema";
 
 type PostPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+const SITE_CARD_PATH = "/og.png";
+
+/** A post shows its own cover when the article-image skill drew one. */
+function postImagePath(slug: string): string {
+  const coverPath = `/og/${slug}.jpg`;
+  return fs.existsSync(path.join(process.cwd(), "public", coverPath)) ? coverPath : SITE_CARD_PATH;
+}
 
 export function generateStaticParams() {
   // Dev also renders drafts: the exported param list is the only set of slugs
@@ -26,9 +35,15 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 
   const title = `${post.title} — Andrey Balyasnikov`;
   const url = `/writing/${slug}`;
-  const image = fs.existsSync(path.join(process.cwd(), "public", "og", `${slug}.jpg`))
-    ? { url: `/og/${slug}.jpg`, width: 1200, height: 630, alt: `Cover illustration: ${post.title}` }
-    : { url: "/og.png", width: 1200, height: 630, alt: "Andrey Balyasnikov — product lead" };
+  const imagePath = postImagePath(slug);
+  const image = {
+    url: imagePath,
+    width: 1200,
+    height: 630,
+    alt: imagePath === SITE_CARD_PATH
+      ? "Andrey Balyasnikov — product lead"
+      : `Cover illustration: ${post.title}`,
+  };
 
   return {
     title,
@@ -63,6 +78,11 @@ export default async function PostPage({ params }: PostPageProps) {
       <ArticleChrome path={post.slug} />
 
       <article className="post">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(buildPostSchema(post, postImagePath(slug))) }}
+        />
+
         <header className="post-header">
           {post.date ? <time className="post-date" dateTime={post.date}>{formatPostDate(post.date)}</time> : null}
           <h1>{post.title}</h1>

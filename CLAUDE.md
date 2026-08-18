@@ -26,6 +26,8 @@ Use these in order:
 | `app/page.tsx` | Home-page composition and section order |
 | `app/writing/page.tsx` | Complete writing index |
 | `app/writing/[slug]/` | Static post route and post-specific not-found state |
+| `app/feed.xml/route.ts` | RSS feed built from the published posts |
+| `app/llms.txt/route.ts` | Machine-readable index of the site and its posts |
 | `components/SiteChrome.tsx` | Theme control |
 | `components/ArticleChrome.tsx` | Shared sticky chrome for writing pages |
 | `components/WritingList.tsx` | Shared dated post list |
@@ -33,10 +35,15 @@ Use these in order:
 | `content/site.tsx` | Work and building content |
 | `content/writing/*.md` | Blog post source files |
 | `lib/posts.ts` | Post discovery, frontmatter validation, ordering, and date formatting |
+| `lib/site.ts` | Name, URL, shared descriptions, and linked profiles |
+| `lib/schema.ts` | Person and BlogPosting structured data |
 | `styles/tokens.css` | Runtime implementation of design tokens |
 | `app/globals.css` | Layout and component rules built from those tokens |
 | `next.config.ts` | Static-export configuration |
+| `vercel.json` | Security headers and the `noindex` rule for non-canonical hosts |
 | `scripts/audit/` | Contrast, layout, behaviour and screenshot regression checks |
+| `scripts/seo/` | Export check for metadata, schema, sitemap, feed and llms.txt |
+| `scripts/indexnow/` | IndexNow ownership file and post-deploy submission |
 | `scripts/check-english.mjs` | Enforces the English-only rule across tracked files |
 | `public/` | Everything the site serves: portrait, OG image, résumé |
 | `assets/` | Sources that must not be published, such as the original portrait PNG |
@@ -119,6 +126,25 @@ Post copy.
   one-off per-post styling. Extend `MarkdownArticle` and `docs/DESIGN.md` when a new
   semantic element is genuinely needed.
 
+## Search surfaces
+
+The `seo-check` skill owns this area; read it before changing metadata, schema,
+the feed, `llms.txt`, `robots.txt` or the sitemap.
+
+- Structured data carries facts, so the content rules above apply to it exactly
+  as they apply to page copy. Do not add a schema field the site itself does not
+  state.
+- `lib/site.ts` is the single source for the name, URL and shared descriptions.
+  Do not restate them in a route file.
+- `AUTHOR_PROFILES` claims an identity in both directions. A profile stays there
+  only while it links back to this site.
+- Only `balyasnikov.com` is meant to be indexed; `vercel.json` marks every other
+  host `noindex`.
+- `robots.txt` is open to every crawler, training and search alike. That is a
+  deliberate choice, not an oversight.
+- IndexNow submission runs after a deploy is live, never before, and its key
+  lives in `INDEXNOW_KEY` rather than in the repository.
+
 ## Design rules
 
 - Read `docs/DESIGN.md` before changing layout, type, color, spacing, motion, links,
@@ -169,6 +195,7 @@ the server must stay available, build from an isolated temporary copy.
 - The active site has zero console errors and no failed local requests.
 - `npm run lint` exits 0 and `npm run audit` reports no violations against a dev
   server on `3001`.
+- `npm run check:seo` reports no problems against the export just built.
 - Check 320/375px, 768px, and 1440px with no horizontal overflow.
 - Check light and dark themes.
 - Verify home → `read all` → post → `all writings`, plus `back` and `back to top`.

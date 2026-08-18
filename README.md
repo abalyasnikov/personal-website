@@ -31,6 +31,7 @@ Open `http://localhost:3001`.
 npm run build     # static export to out/
 npm run lint      # ESLint
 npm run audit     # accessibility and layout regression suite
+npm run check:seo # metadata, schema and index surfaces in out/
 ```
 
 `npm run audit` expects a dev server already running. It checks colour contrast
@@ -45,12 +46,17 @@ four viewport widths, theme-flash on first paint, and keyboard focus order. Set
 | `app/` | Routes, layout, global styles |
 | `app/writing/page.tsx` | Complete writing index |
 | `app/writing/[slug]/` | Static post route |
+| `app/feed.xml/`, `app/llms.txt/` | Machine-readable views of the writing archive |
 | `components/` | Writing list, article chrome, Markdown renderer, theme control |
 | `content/site.tsx` | Work and building entries |
 | `content/writing/*.md` | Posts |
 | `lib/posts.ts` | Post discovery, frontmatter validation, ordering |
+| `lib/site.ts` | Name, URL, shared descriptions, linked profiles |
+| `lib/schema.ts` | Person and BlogPosting structured data |
 | `styles/tokens.css` | Design tokens |
 | `scripts/audit/` | Regression suite |
+| `scripts/seo/` | Export check for metadata, schema and index surfaces |
+| `scripts/indexnow/` | Ownership file and post-deploy submission |
 | `docs/` | Design system and specs |
 | `assets/` | Sources that are not published |
 
@@ -90,6 +96,29 @@ automatically.
 Posts are plain Markdown, not MDX. Raw HTML, JSX and per-post styling are not
 part of the authoring format, so no article can drift out of the design system.
 Extend the shared renderer instead.
+
+## Search and answer engines
+
+The export carries `robots.txt`, `sitemap.xml`, `feed.xml`, `llms.txt`, a
+canonical on every page, and JSON-LD: one `Person` node with a stable `@id` on
+every page, and a `BlogPosting` per post whose author points back at it. Every
+value traces to something the site already says. `npm run check:seo` verifies
+all of it against `out/`.
+
+Only `balyasnikov.com` is meant to be indexed. `vercel.json` marks any other
+host `noindex`, so preview deployments cannot compete with it in search.
+
+Publishing a post is a deploy plus one command, run once the deploy is live:
+
+```bash
+npm run submit:indexnow
+```
+
+It submits the sitemap URLs to IndexNow, which is how Bing — and therefore
+ChatGPT and Copilot — sees a new post in hours rather than days. The key lives
+in `INDEXNOW_KEY`, in `.env.local` locally and in the Vercel project for the
+build; `prebuild` writes the file the site has to serve. The key is public once
+deployed, and still never enters git.
 
 ## Design system
 

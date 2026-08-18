@@ -5,6 +5,8 @@ dist/
 .audit/
 .vercel/
 .env*.local
+# The IndexNow ownership file is generated from INDEXNOW_KEY at build time.
+public/*.txt
 *.log
 .DS_Store
 .gstack/
