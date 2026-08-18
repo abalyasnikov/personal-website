@@ -3,7 +3,7 @@ title: Every iteration gets a versioned spec
 description: Each feature gets a versioned spec with its own implementation history, so agents pick up context instead of starting from zero.
 status: published
 date: 2026-08-12
-order: 2
+order: 4
 ---
 
 ![A blue toy locomotive pulling document cars tagged v1 through v5](/og/every-iteration-gets-a-spec.jpg)

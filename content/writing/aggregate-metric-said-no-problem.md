@@ -3,7 +3,7 @@ title: When the aggregate metric says there is no problem
 description: How segmentation found a 15% failure rate inside a metric that looked like noise, and what kept the fix honest.
 status: published
 date: 2026-08-07
-order: 4
+order: 5
 ---
 
 ![A magnifying glass over a calm flat line, revealing jagged spikes inside the lens](/og/aggregate-metric-said-no-problem.jpg)

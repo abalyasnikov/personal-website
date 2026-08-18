@@ -3,7 +3,7 @@ title: "Agent-built interfaces drift into slop. Here is how I stop it."
 description: "The anchors that keep agent-built interfaces consistent: global principles, a versioned spec, a design system, and review at every stage."
 status: published
 date: 2026-08-12
-order: 1
+order: 2
 ---
 
 ![A robot builder on scaffolding checks a blue blueprint while assembling a browser window](/og/interfaces-with-coding-agents.jpg)
