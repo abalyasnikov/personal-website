@@ -10,7 +10,7 @@ order: 2
 
 For a while my specs lived in a folder called specs. Every feature added a Markdown file, every file was written for the moment it served, and the folder grew in whatever order the work happened. Soon it could not answer a single useful question. Which of these decisions still stand? Which version of the strategy does this file describe? What was tried and abandoned? I could not read the history out of it, and my agents could not either: every new session started from a blank slate inside a repository that had already learned the answers.
 
-Vibe coding made this worse, because the volume went up. More ideas get tried in a week than a folder of loose files can hold. So the folder became a system: versioned specs with their own implementation history, and a pair of skills that write and review them. It is the base layer under everything I build with agents, including the interface pipeline in [How I build interfaces with coding agents](/writing/interfaces-with-coding-agents).
+Vibe coding made this worse, because the volume went up. More ideas get tried in a week than a folder of loose files can hold. So the folder became a system: versioned specs with their own implementation history, and a pair of skills that write and review them. It is the base layer under everything I build with agents, including the interface pipeline in [Agent-built interfaces drift into slop. Here is how I stop it.](/writing/interfaces-with-coding-agents)
 
 ## The spec is what the agent actually builds
 
@@ -73,4 +73,4 @@ What I get: context that compounds across sessions, models, and months.
 
 The two skills that run this system are published in [github.com/abalyasnikov/dev-history-skills](https://github.com/abalyasnikov/dev-history-skills): write-dev-history-spec and review-dev-history-spec. MIT, no runtime dependencies, installed by symlink for Claude Code and Codex. The writer investigates and proposes scope before touching a file; the reviewer never edits and ends with one verdict. Both read your repository's own conventions first and fall back to their structure only where none exists.
 
-Where this sits in the larger picture is the interface pipeline: [How I build interfaces with coding agents](/writing/interfaces-with-coding-agents).
+Where this sits in the larger picture is the interface pipeline: [Agent-built interfaces drift into slop. Here is how I stop it.](/writing/interfaces-with-coding-agents)

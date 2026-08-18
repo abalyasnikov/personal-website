@@ -1,12 +1,12 @@
 ---
-title: How I build interfaces with coding agents
+title: "Agent-built interfaces drift into slop. Here is how I stop it."
 description: "The anchors that keep agent-built interfaces consistent: global principles, a versioned spec, a design system, and review at every stage."
 status: published
 date: 2026-08-12
 order: 1
 ---
 
-![A lighthouse beam guiding a line of paper boats with browser-window sails](/og/interfaces-with-coding-agents.jpg)
+![A robot builder on scaffolding checks a blue blueprint while assembling a browser window](/og/interfaces-with-coding-agents.jpg)
 
 The first version an agent hands back almost always looks fine. Scroll for a minute and it stops looking fine: three grays that are nearly the same, two corner radii on one screen, a button that invented its own padding, a heading set at 15px because nothing said it could not be. Nothing fails the build, and the whole page still reads as slop.
 
