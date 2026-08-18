@@ -38,7 +38,7 @@ What I get: shared taste with the agent before any code exists, in a form it can
 
 The goal of the design phase is not mockups. It is a design system and a DESIGN.md strong enough to govern everything built after them: tokens for color, type, spacing, radii and motion, plus the rules for using them.
 
-Three tools carry this stage. gstack's design-consultation researches the product and proposes a direction: aesthetic, typography, color, spacing, motion. [Impeccable](https://github.com/pbakaus/impeccable) lays hard guardrails against default AI taste, rules of the kind "no nested cards, no bounce easing, not Inter". [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) collects DESIGN.md files extracted from real products, useful for calibrating what a good one contains.
+Two tools carry this stage. gstack's design-consultation researches the product and proposes a direction: aesthetic, typography, color, spacing, motion. [Impeccable](https://github.com/pbakaus/impeccable) used to be guardrails against default AI taste; v4 turned it into a full design pass — directions, critique, typography, layout, polish, and a generated DESIGN.md. Known products' systems are worth studying here too — not to copy one, but to feel out your own. [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) collects DESIGN.md files extracted from real products; [styles.refero.design](https://styles.refero.design) serves two thousand of them as a browsable, AI-readable library.
 
 The stage is not done at the document. I have the agent build a demo: the design system rendered as a page, plus one real slice of the product built with it. Reading tokens tells you little; seeing your actual screen set in them tells you whether the direction works. The demo is where I feel that out, and it is cheap to throw away.
 
@@ -52,7 +52,7 @@ What I get: copy that sounds like a person decided something, not like a model f
 
 ## Building runs on two tracks
 
-For product interfaces, the agent does not invent components. The base is [shadcn/ui](https://ui.shadcn.com), larger sections come from [shadcnblocks.com](https://www.shadcnblocks.com), and the occasional wow detail comes from [21st.dev](https://21st.dev) or [reactbits.dev](https://reactbits.dev). The design system decides how all of it looks; the libraries decide how it is constructed.
+For product interfaces, the agent does not invent components. The base is [shadcn/ui](https://ui.shadcn.com), larger sections come from [shadcnblocks.com](https://www.shadcnblocks.com), and the occasional wow detail comes from [21st.dev](https://21st.dev) or [reactbits.dev](https://reactbits.dev). The design system decides how all of it looks; the libraries decide how it is constructed. [tweakcn](https://tweakcn.com) exists for exactly this: retuning the shadcn theme so the result does not look like every other shadcn site.
 
 Landing pages work the other way around. There is no component library for a good landing; there are references. I pick one, study how it earns its effect, and build my own on top of that understanding.
 
@@ -83,10 +83,11 @@ The toolkit in one place:
 - [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills), base principles in the global agents file
 - [dev-history-skills](https://github.com/abalyasnikov/dev-history-skills), my skills for writing and reviewing versioned specs
 - [gstack](https://github.com/garrytan/gstack): plan-eng-review, design-consultation, design-review, review, qa
-- [Impeccable](https://github.com/pbakaus/impeccable), guardrails against default AI taste
-- [awesome-design-md](https://github.com/VoltAgent/awesome-design-md), reference DESIGN.md files
+- [Impeccable](https://github.com/pbakaus/impeccable), the full design pass, guardrails included
+- [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) and [styles.refero.design](https://styles.refero.design), known products' systems for reference
 - [stop-slop](https://github.com/hardikpandya/stop-slop), AI patterns out of copy
 - [shadcn/ui](https://ui.shadcn.com), [shadcnblocks.com](https://www.shadcnblocks.com), [21st.dev](https://21st.dev), [reactbits.dev](https://reactbits.dev), component sources
+- [tweakcn](https://tweakcn.com), the shadcn theme retuned away from stock
 - [land-book.com](https://land-book.com), landing references
 
 The spec system that anchors all of it has its own article: [Every iteration gets a versioned spec](/writing/every-iteration-gets-a-spec).
